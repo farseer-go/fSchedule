@@ -2,6 +2,7 @@ package fSchedule
 
 import (
 	"github.com/farseer-go/fs"
+	"github.com/farseer-go/fs/configure"
 	"github.com/farseer-go/fs/modules"
 	"github.com/farseer-go/fs/snowflake"
 	"os"
@@ -15,6 +16,12 @@ func (module Module) DependsModule() []modules.FarseerModule {
 }
 
 func (module Module) PreInitialize() {
+	// 服务端配置
+	defaultServer = serverVO{
+		Address: configure.GetSlice("FSchedule.Server.Address"),
+	}
+
+	// 客户端配置
 	hostname, _ := os.Hostname()
 	defaultClient = clientVO{
 		ClientId:   snowflake.GenerateId(),
@@ -22,14 +29,28 @@ func (module Module) PreInitialize() {
 		ClientIp:   fs.AppIp,
 		ClientPort: 9526,
 	}
+
+	// 如果手动配置了客户端IP，则覆盖
+	clientIp := configure.GetString("FSchedule.ClientIp")
+	if clientIp != "" {
+		defaultClient.ClientIp = clientIp
+	}
+
+	// 如果手动配置了客户端端口，则覆盖
+	clientPort := configure.GetInt64("FSchedule.ClientPort")
+	if clientPort > 0 {
+		defaultClient.ClientPort = clientPort
+	}
 }
 
 func (module Module) Initialize() {
 }
 
 func (module Module) PostInitialize() {
-	// 注册客户端
-
+	fs.AddInitCallback(func() {
+		// 注册客户端
+		defaultClient.RegistryClient()
+	})
 }
 
 func (module Module) Shutdown() {

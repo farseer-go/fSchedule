@@ -1,3 +1,10 @@
 FSchedule:
+  ClientIp: "111"
+  ClientPort: 0
   Server:
+    Token: ""
+    Address:
     - "http://127.0.0.1:8886"
+Log:
+  Component:
+    fSchedule: true

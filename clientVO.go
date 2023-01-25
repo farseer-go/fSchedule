@@ -1,7 +1,13 @@
 package fSchedule
 
+import (
+	"encoding/json"
+	"github.com/farseer-go/fs/flog"
+)
+
 var defaultClient clientVO
 
+// 客户端配置
 type clientVO struct {
 	ClientId   int64  // 客户端ID
 	ClientName string // 客户端名称
@@ -14,16 +20,22 @@ func GetClient() clientVO {
 }
 
 // 转换成http head
-func (receiver clientVO) getHttpHead() map[string]any {
+func (receiver *clientVO) getHttpHead() map[string]any {
 	return map[string]any{
-		"ClientIp":   defaultClient.ClientIp,
-		"ClientId":   defaultClient.ClientId,
-		"ClientName": defaultClient.ClientName,
-		"ClientPort": defaultClient.ClientPort,
+		"ClientIp":   receiver.ClientIp,
+		"ClientId":   receiver.ClientId,
+		"ClientName": receiver.ClientName,
+		"ClientPort": receiver.ClientPort,
 	}
 }
 
 // RegistryClient 注册客户端
-func (receiver clientVO) RegistryClient() {
-	
+func (receiver *clientVO) RegistryClient() {
+	jsonByte, _ := json.Marshal(receiver)
+	apiResponse, err := defaultServer.registry(jsonByte)
+	flog.Panic(err)
+	if apiResponse.StatusCode != 200 {
+		flog.Panic("注册失败，服务端状态码为：", apiResponse.StatusCode)
+	}
+	flog.ComponentInfo("fSchedule", "客户端注册成功！")
 }
