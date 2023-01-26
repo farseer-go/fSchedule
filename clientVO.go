@@ -2,6 +2,7 @@ package fSchedule
 
 import (
 	"encoding/json"
+	"github.com/farseer-go/collections"
 	"github.com/farseer-go/fs/flog"
 )
 
@@ -9,10 +10,19 @@ var defaultClient clientVO
 
 // 客户端配置
 type clientVO struct {
-	ClientId   int64  // 客户端ID
-	ClientName string // 客户端名称
-	ClientIp   string // 客户端IP
-	ClientPort int64  // 客户端端口
+	ClientId   int64                       // 客户端ID
+	ClientName string                      // 客户端名称
+	ClientIp   string                      // 客户端IP
+	ClientPort int                         // 客户端端口
+	ClientJobs collections.List[ClientJob] // 客户端动态注册任务
+}
+
+type ClientJob struct {
+	Name    string // 任务名称
+	Caption string // 任务标题
+	Ver     int    // 任务版本
+	Cron    string // 任务执行表达式
+	StartAt int64  // 任务开始时间
 }
 
 func GetClient() clientVO {

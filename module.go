@@ -1,6 +1,7 @@
 package fSchedule
 
 import (
+	"github.com/farseer-go/collections"
 	"github.com/farseer-go/fs"
 	"github.com/farseer-go/fs/configure"
 	"github.com/farseer-go/fs/modules"
@@ -28,6 +29,7 @@ func (module Module) PreInitialize() {
 		ClientName: hostname,
 		ClientIp:   fs.AppIp,
 		ClientPort: 9526,
+		ClientJobs: collections.NewList[ClientJob](),
 	}
 
 	// 如果手动配置了客户端IP，则覆盖
@@ -37,7 +39,7 @@ func (module Module) PreInitialize() {
 	}
 
 	// 如果手动配置了客户端端口，则覆盖
-	clientPort := configure.GetInt64("FSchedule.ClientPort")
+	clientPort := configure.GetInt("FSchedule.ClientPort")
 	if clientPort > 0 {
 		defaultClient.ClientPort = clientPort
 	}
