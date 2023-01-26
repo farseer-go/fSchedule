@@ -39,6 +39,6 @@ func (receiver *serverVO) registry(bodyJson []byte) (core.ApiResponse[any], erro
 	address, _ := receiver.getAddress(-1)
 	token := configure.GetString("FSchedule.Server.Token")
 	var apiResponse core.ApiResponse[any]
-	err := http.NewClient(address+"/registry").HeadAdd(tokenName, token).Body(bodyJson).PostUnmarshal(&apiResponse)
+	err := http.NewClient(address+"/api/registry").HeadAdd(tokenName, token).Body(bodyJson).PostUnmarshal(&apiResponse)
 	return apiResponse, err
 }
