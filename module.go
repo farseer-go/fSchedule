@@ -1,11 +1,13 @@
 package fSchedule
 
 import (
+	"fmt"
 	"github.com/farseer-go/collections"
 	"github.com/farseer-go/fs"
 	"github.com/farseer-go/fs/configure"
 	"github.com/farseer-go/fs/modules"
 	"github.com/farseer-go/fs/snowflake"
+	"github.com/farseer-go/webapi"
 	"os"
 )
 
@@ -13,7 +15,7 @@ type Module struct {
 }
 
 func (module Module) DependsModule() []modules.FarseerModule {
-	return nil
+	return []modules.FarseerModule{webapi.Module{}}
 }
 
 func (module Module) PreInitialize() {
@@ -22,13 +24,15 @@ func (module Module) PreInitialize() {
 		Address: configure.GetSlice("FSchedule.Server.Address"),
 	}
 
+	configure.GetString("FSchedule.Server.Token")
+
 	// 客户端配置
 	hostname, _ := os.Hostname()
 	defaultClient = clientVO{
 		ClientId:   snowflake.GenerateId(),
 		ClientName: hostname,
 		ClientIp:   fs.AppIp,
-		ClientPort: 9526,
+		ClientPort: 8888,
 		ClientJobs: collections.NewList[ClientJob](),
 	}
 
@@ -46,9 +50,17 @@ func (module Module) PreInitialize() {
 }
 
 func (module Module) Initialize() {
+
 }
 
 func (module Module) PostInitialize() {
+	webapi.Area("/api/", func() {
+		webapi.RegisterPOST("/check", check)
+		webapi.RegisterPOST("/invoke", invoke)
+	})
+	webapi.UseApiResponse()
+	webUrl := fmt.Sprintf("%s:%d", defaultClient.ClientIp, defaultClient.ClientPort)
+	webapi.Run(webUrl)
 	fs.AddInitCallback(func() {
 		// 注册客户端
 		defaultClient.RegistryClient()
@@ -56,4 +68,5 @@ func (module Module) PostInitialize() {
 }
 
 func (module Module) Shutdown() {
+	defaultClient.LogoutClient()
 }

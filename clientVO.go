@@ -49,3 +49,14 @@ func (receiver *clientVO) RegistryClient() {
 	}
 	flog.ComponentInfo("fSchedule", "客户端注册成功！")
 }
+
+// LogoutClient 客户端下线
+func (receiver *clientVO) LogoutClient() {
+	jsonByte, _ := json.Marshal(receiver)
+	apiResponse, err := defaultServer.logout(jsonByte)
+	flog.Panic(err)
+	if apiResponse.StatusCode != 200 {
+		flog.Panic("下线失败，服务端状态码为：", apiResponse.StatusCode)
+	}
+	flog.ComponentInfo("fSchedule", "客户端下线成功！")
+}

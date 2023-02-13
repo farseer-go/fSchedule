@@ -1,6 +1,6 @@
 FSchedule:
   ClientIp: "111"
-  ClientPort: 0
+  ClientPort: 8888
   Server:
     Token: ""
     Address:
