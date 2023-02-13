@@ -55,12 +55,15 @@ func (module Module) Initialize() {
 
 func (module Module) PostInitialize() {
 	webapi.Area("/api/", func() {
-		webapi.RegisterPOST("/check", check)
-		webapi.RegisterPOST("/invoke", invoke)
+		webapi.RegisterPOST("/check", Check)
+		webapi.RegisterPOST("/invoke", Invoke)
+		webapi.RegisterPOST("/status", Status)
+		webapi.RegisterPOST("/kill", Kill)
 	})
 	webapi.UseApiResponse()
 	webUrl := fmt.Sprintf("%s:%d", defaultClient.ClientIp, defaultClient.ClientPort)
-	webapi.Run(webUrl)
+	go webapi.Run(webUrl)
+
 	fs.AddInitCallback(func() {
 		// 注册客户端
 		defaultClient.RegistryClient()
