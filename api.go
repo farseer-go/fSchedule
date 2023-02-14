@@ -22,17 +22,6 @@ type TaskReportVO struct {
 	Data         collections.Dictionary[string, string] // 数据
 }
 
-type TaskStatus int
-
-const (
-	None         TaskStatus = iota //  未开始
-	Scheduling                     //  调度中
-	ScheduleFail                   //  调度失败
-	Working                        //  执行中
-	Fail                           //  失败
-	Success                        //  完成
-)
-
 // Check 检查客户端存活
 func Check() ResourceVO {
 	return getResource()
@@ -40,6 +29,7 @@ func Check() ResourceVO {
 
 // Invoke 下发任务
 func Invoke(task TaskEO) ResourceVO {
+	invokeJob(task)
 	return getResource()
 }
 

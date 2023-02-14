@@ -3,10 +3,14 @@ package fSchedule
 import (
 	"encoding/json"
 	"github.com/farseer-go/collections"
+	"github.com/farseer-go/fs"
+	"github.com/farseer-go/fs/configure"
 	"github.com/farseer-go/fs/flog"
+	"github.com/farseer-go/fs/snowflake"
+	"os"
 )
 
-var defaultClient clientVO
+var defaultClient *clientVO
 
 // 客户端配置
 type clientVO struct {
@@ -17,16 +21,57 @@ type clientVO struct {
 	ClientJobs collections.List[ClientJob] // 客户端动态注册任务
 }
 
-type ClientJob struct {
-	Name    string // 任务名称
-	Caption string // 任务标题
-	Ver     int    // 任务版本
-	Cron    string // 任务执行表达式
-	StartAt int64  // 任务开始时间（时间戳秒）
+func NewClient() {
+	hostname, _ := os.Hostname()
+	defaultClient = &clientVO{
+		ClientId:   snowflake.GenerateId(),
+		ClientName: hostname,
+		ClientIp:   fs.AppIp,
+		ClientPort: 8888, // 先填写默认值
+		ClientJobs: collections.NewList[ClientJob](),
+	}
+
+	// 如果手动配置了客户端IP，则覆盖
+	clientIp := configure.GetString("FSchedule.ClientIp")
+	if clientIp != "" {
+		defaultClient.ClientIp = clientIp
+	}
+
+	// 如果手动配置了客户端端口，则覆盖
+	clientPort := configure.GetInt("FSchedule.ClientPort")
+	if clientPort > 0 {
+		defaultClient.ClientPort = clientPort
+	}
 }
 
-func GetClient() clientVO {
+type JobFunc func(jobContext *JobContext) bool
+
+type ClientJob struct {
+	Name     string // 任务名称
+	Caption  string // 任务标题
+	Ver      int    // 任务版本
+	Cron     string // 任务执行表达式
+	StartAt  int64  // 任务开始时间（时间戳秒）
+	IsEnable bool   // 任务是否启用
+	jobFunc  JobFunc
+}
+
+func GetClient() *clientVO {
 	return defaultClient
+}
+
+// AddJob 客户端支持的任务
+func AddJob(isEnable bool, name, caption string, ver int, cron string, startAt int64, job JobFunc) {
+	clientJob := ClientJob{
+		Name:     name,
+		IsEnable: isEnable,
+		Caption:  caption,
+		Ver:      ver,
+		Cron:     cron,
+		StartAt:  startAt,
+		jobFunc:  job,
+	}
+	defaultClient.ClientJobs.Add(clientJob)
 }
 
 // 转换成http head

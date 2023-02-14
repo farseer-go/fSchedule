@@ -2,13 +2,10 @@ package fSchedule
 
 import (
 	"fmt"
-	"github.com/farseer-go/collections"
 	"github.com/farseer-go/fs"
 	"github.com/farseer-go/fs/configure"
 	"github.com/farseer-go/fs/modules"
-	"github.com/farseer-go/fs/snowflake"
 	"github.com/farseer-go/webapi"
-	"os"
 )
 
 type Module struct {
@@ -22,31 +19,11 @@ func (module Module) PreInitialize() {
 	// 服务端配置
 	defaultServer = serverVO{
 		Address: configure.GetSlice("FSchedule.Server.Address"),
+		Token:   configure.GetString("FSchedule.Server.Token"),
 	}
-
-	configure.GetString("FSchedule.Server.Token")
 
 	// 客户端配置
-	hostname, _ := os.Hostname()
-	defaultClient = clientVO{
-		ClientId:   snowflake.GenerateId(),
-		ClientName: hostname,
-		ClientIp:   fs.AppIp,
-		ClientPort: 8888,
-		ClientJobs: collections.NewList[ClientJob](),
-	}
-
-	// 如果手动配置了客户端IP，则覆盖
-	clientIp := configure.GetString("FSchedule.ClientIp")
-	if clientIp != "" {
-		defaultClient.ClientIp = clientIp
-	}
-
-	// 如果手动配置了客户端端口，则覆盖
-	clientPort := configure.GetInt("FSchedule.ClientPort")
-	if clientPort > 0 {
-		defaultClient.ClientPort = clientPort
-	}
+	NewClient()
 }
 
 func (module Module) Initialize() {
