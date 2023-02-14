@@ -52,7 +52,7 @@ func (receiver *clientVO) RegistryClient() {
 
 // LogoutClient 客户端下线
 func (receiver *clientVO) LogoutClient() {
-	jsonByte, _ := json.Marshal(receiver)
+	jsonByte, _ := json.Marshal(map[string]any{"clientId": receiver.ClientId})
 	apiResponse, err := defaultServer.logout(jsonByte)
 	flog.Panic(err)
 	if apiResponse.StatusCode != 200 {
