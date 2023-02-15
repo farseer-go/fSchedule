@@ -14,14 +14,6 @@ type ResourceVO struct {
 	AllowSchedule bool    // 是否允许调度
 }
 
-type TaskReportVO struct {
-	NextTimespan int64                                  // 下次执行时间
-	Progress     int                                    // 当前进度
-	Status       TaskStatus                             // 执行状态
-	RunSpeed     int64                                  // 执行速度
-	Data         collections.Dictionary[string, string] // 数据
-}
-
 // Check 检查客户端存活
 func Check(clientId int64) ResourceVO {
 	if clientId != defaultClient.ClientId {
@@ -37,8 +29,18 @@ func Invoke(task TaskEO) ResourceVO {
 }
 
 // Status 查询任务状态
-func Status(TaskId int64) TaskReportVO {
-	return TaskReportVO{}
+func Status(TaskId int64) TaskReportDTO {
+	job := getJob(TaskId)
+	if job == nil {
+		return TaskReportDTO{
+			NextTimespan: 0,
+			Progress:     0,
+			Status:       Fail,
+			RunSpeed:     0,
+			Data:         collections.Dictionary[string, string]{},
+		}
+	}
+	return job.jobContext.getReport()
 }
 
 // Kill 终止任务

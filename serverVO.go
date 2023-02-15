@@ -3,6 +3,7 @@ package fSchedule
 import (
 	"github.com/farseer-go/collections"
 	"github.com/farseer-go/fs/core"
+	"github.com/farseer-go/fs/flog"
 	"github.com/farseer-go/utils/http"
 	"math/rand"
 )
@@ -39,7 +40,8 @@ func (receiver *serverVO) getAddress(ignoreIndex int) (serverAddress, serverInde
 func (receiver *serverVO) registry(bodyJson []byte) (core.ApiResponse[any], error) {
 	address, _ := receiver.getAddress(-1)
 	var apiResponse core.ApiResponse[any]
-	err := http.NewClient(address+"/api/registry").HeadAdd(tokenName, receiver.Token).Body(bodyJson).PostUnmarshal(&apiResponse)
+	err := http.NewClient(address+"/api/registry").HeadAdd(tokenName, receiver.Token).Body(bodyJson).Timeout(1000).PostUnmarshal(&apiResponse)
+	flog.Panic(err)
 	return apiResponse, err
 }
 

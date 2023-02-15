@@ -30,7 +30,14 @@ func (receiver *JobContext) SetProgress(progress int) {
 
 // SetProgress 设置任务进度
 func (receiver *JobContext) report() bool {
-	jsonByte, _ := json.Marshal(TaskReportDTO{
+	jsonByte, _ := json.Marshal(receiver.getReport())
+	apiResponse, _ := defaultServer.taskReport(jsonByte)
+	return apiResponse.StatusCode == 200
+}
+
+// getReport 获取DTO
+func (receiver *JobContext) getReport() TaskReportDTO {
+	return TaskReportDTO{
 		Id:           receiver.Id,
 		Name:         receiver.Name,
 		Data:         receiver.Data,
@@ -38,7 +45,5 @@ func (receiver *JobContext) report() bool {
 		Progress:     receiver.progress,
 		Status:       receiver.status,
 		RunSpeed:     receiver.sw.ElapsedMilliseconds(),
-	})
-	apiResponse, _ := defaultServer.taskReport(jsonByte)
-	return apiResponse.StatusCode == 200
+	}
 }

@@ -86,8 +86,7 @@ func (receiver *clientVO) getHttpHead() map[string]any {
 // RegistryClient 注册客户端
 func (receiver *clientVO) RegistryClient() {
 	jsonByte, _ := json.Marshal(receiver)
-	apiResponse, err := defaultServer.registry(jsonByte)
-	flog.Panic(err)
+	apiResponse, _ := defaultServer.registry(jsonByte)
 	if apiResponse.StatusCode != 200 {
 		flog.Panic("注册失败，服务端状态码为：", apiResponse.StatusCode)
 	}

@@ -5,11 +5,13 @@ import (
 	"github.com/farseer-go/fs/exception"
 	"github.com/farseer-go/fs/flog"
 	"github.com/farseer-go/fs/stopwatch"
+	"sync"
 )
 
 // 当前正在执行的Job列表
 // key:taskId
 var jobList = collections.NewDictionary[int64, *Job]()
+var lock = &sync.RWMutex{}
 
 type Job struct {
 	ClientJob  ClientJob
@@ -31,9 +33,11 @@ func invokeJob(task TaskEO) {
 			nextTimespan: 0,
 			progress:     0,
 			status:       Working,
-			sw:           stopwatch.New(),
+			sw:           stopwatch.StartNew(),
 		},
 	}
+	lock.Lock()
+	defer lock.Unlock()
 	jobList.Add(task.Id, job)
 	go job.Run()
 }
@@ -41,7 +45,9 @@ func invokeJob(task TaskEO) {
 func (receiver *Job) Run() {
 	defer func() {
 		if receiver.jobContext.report() {
+			lock.Lock()
 			jobList.Remove(receiver.jobContext.Id)
+			lock.Unlock()
 		}
 	}()
 
@@ -57,4 +63,10 @@ func (receiver *Job) Run() {
 	})
 
 	flog.Infof("任务：%s %d，耗时：%s，结果：%s", receiver.jobContext.Name, receiver.jobContext.Id, receiver.jobContext.sw.GetMillisecondsText(), receiver.jobContext.status.String())
+}
+
+func getJob(taskId int64) *Job {
+	lock.RLock()
+	defer lock.RUnlock()
+	return jobList.GetValue(taskId)
 }
