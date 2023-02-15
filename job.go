@@ -1,7 +1,6 @@
 package fSchedule
 
 import (
-	"encoding/json"
 	"github.com/farseer-go/collections"
 	"github.com/farseer-go/fs/exception"
 	"github.com/farseer-go/fs/flog"
@@ -9,6 +8,7 @@ import (
 )
 
 // 当前正在执行的Job列表
+// key:taskId
 var jobList = collections.NewDictionary[int64, *Job]()
 
 type Job struct {
@@ -25,8 +25,8 @@ func invokeJob(task TaskEO) {
 	job := &Job{
 		ClientJob: clientJob,
 		jobContext: &JobContext{ // 构造上下文
-			id:           task.Id,
-			name:         clientJob.Name,
+			Id:           task.Id,
+			Name:         clientJob.Name,
 			Data:         task.Data,
 			nextTimespan: 0,
 			progress:     0,
@@ -39,22 +39,9 @@ func invokeJob(task TaskEO) {
 }
 
 func (receiver *Job) Run() {
-	flog.Infof("开始执行任务：%d %s:Ver%d 计划时间：%s", receiver.jobContext.id, receiver.ClientJob.Name, receiver.ClientJob.Ver)
 	defer func() {
-		dto := TaskReportDTO{
-			Id:           receiver.jobContext.id,
-			Name:         receiver.jobContext.name,
-			Data:         receiver.jobContext.Data,
-			NextTimespan: receiver.jobContext.nextTimespan,
-			Progress:     receiver.jobContext.progress,
-			Status:       receiver.jobContext.status,
-			RunSpeed:     receiver.jobContext.sw.ElapsedMilliseconds(),
-		}
-		jsonByte, _ := json.Marshal(dto)
-		apiResponse, _ := defaultServer.taskReport(jsonByte)
-		// 上报成功之后，本地移除
-		if apiResponse.StatusCode == 200 {
-			jobList.Remove(receiver.jobContext.id)
+		if receiver.jobContext.report() {
+			jobList.Remove(receiver.jobContext.Id)
 		}
 	}()
 
@@ -69,5 +56,5 @@ func (receiver *Job) Run() {
 		receiver.jobContext.status = Fail
 	})
 
-	flog.Infof("任务：%d 运行完成，耗时：%s，结果：%s", receiver.jobContext.id, receiver.jobContext.sw.GetMillisecondsText(), receiver.jobContext.status.String())
+	flog.Infof("任务：%s %d，耗时：%s，结果：%s", receiver.jobContext.Name, receiver.jobContext.Id, receiver.jobContext.sw.GetMillisecondsText(), receiver.jobContext.status.String())
 }

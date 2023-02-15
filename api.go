@@ -23,7 +23,10 @@ type TaskReportVO struct {
 }
 
 // Check 检查客户端存活
-func Check() ResourceVO {
+func Check(clientId int64) ResourceVO {
+	if clientId != defaultClient.ClientId {
+		exception.ThrowWebException(403, "客户端ID不一致")
+	}
 	return getResource()
 }
 

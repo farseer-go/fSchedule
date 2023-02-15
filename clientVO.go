@@ -6,7 +6,6 @@ import (
 	"github.com/farseer-go/fs"
 	"github.com/farseer-go/fs/configure"
 	"github.com/farseer-go/fs/flog"
-	"github.com/farseer-go/fs/snowflake"
 	"os"
 )
 
@@ -24,7 +23,7 @@ type clientVO struct {
 func NewClient() {
 	hostname, _ := os.Hostname()
 	defaultClient = &clientVO{
-		ClientId:   snowflake.GenerateId(),
+		ClientId:   fs.AppId,
 		ClientName: hostname,
 		ClientIp:   fs.AppIp,
 		ClientPort: 8888, // 先填写默认值
