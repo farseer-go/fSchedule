@@ -23,9 +23,9 @@ func (module startupModule) Initialize() {
 }
 
 func (module startupModule) PostInitialize() {
-	for i := 1; i <= 10; i++ {
+	for i := 1; i <= 100; i++ {
 		fSchedule.AddJob(true, "Hello"+strconv.Itoa(i), "测试HelloJob"+strconv.Itoa(i), 1, "0/1 * * * * ?", 1674571566, func(jobContext *fSchedule.JobContext) bool {
-			time.Sleep(10 * time.Second)
+			//time.Sleep(10 * time.Second)
 			return true
 		})
 	}
