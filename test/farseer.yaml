@@ -4,7 +4,10 @@ FSchedule:
   Server:
     Token: ""
     Address:
-    - "http://127.0.0.1:8886"
+    #- "http://127.0.0.1:8886"
+    - "http://fschedule.fsgit.cc"
 Log:
+  LogLevel: "info"
   Component:
     fSchedule: true
+    webapi: false

@@ -16,6 +16,7 @@ type JobContext struct {
 	progress     int                                    // 当前进度
 	status       TaskStatus                             // 执行状态
 	sw           *stopwatch.Watch                       // 运行时间
+	StartAt      time.Time                              // 任务开始时间
 }
 
 // SetNextAt 设置下次运行时间

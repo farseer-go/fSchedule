@@ -41,7 +41,9 @@ func (receiver *serverVO) registry(bodyJson []byte) (core.ApiResponse[any], erro
 	address, _ := receiver.getAddress(-1)
 	var apiResponse core.ApiResponse[any]
 	err := http.NewClient(address+"/api/registry").HeadAdd(tokenName, receiver.Token).Body(bodyJson).Timeout(5000).PostUnmarshal(&apiResponse)
-	flog.Panic(err)
+	if err != nil {
+		_ = flog.Errorf("客户端注册失败：%s", err.Error())
+	}
 	return apiResponse, err
 }
 

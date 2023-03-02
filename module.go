@@ -5,6 +5,7 @@ import (
 	"github.com/farseer-go/fs"
 	"github.com/farseer-go/fs/configure"
 	"github.com/farseer-go/fs/modules"
+	"github.com/farseer-go/fs/timingWheel"
 	"github.com/farseer-go/webapi"
 )
 
@@ -24,6 +25,7 @@ func (module Module) PreInitialize() {
 
 	// 客户端配置
 	NewClient()
+	timingWheel.Start()
 }
 
 func (module Module) Initialize() {
@@ -38,11 +40,10 @@ func (module Module) PostInitialize() {
 		webapi.RegisterPOST("/kill", Kill)
 	})
 	webapi.UseApiResponse()
-	webUrl := fmt.Sprintf("%s:%d", defaultClient.ClientIp, defaultClient.ClientPort)
-	go webapi.Run(webUrl)
+	webapi.UsePprof()
+	go webapi.Run(fmt.Sprintf("%s:%d", defaultClient.ClientIp, defaultClient.ClientPort))
 
-	fs.AddInitCallback(func() {
-		// 注册客户端
+	fs.AddInitCallback("注册客户端", func() {
 		defaultClient.RegistryClient()
 	})
 }

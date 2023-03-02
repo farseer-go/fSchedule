@@ -5,7 +5,9 @@ import (
 	"github.com/farseer-go/fs/exception"
 	"github.com/farseer-go/fs/flog"
 	"github.com/farseer-go/fs/stopwatch"
+	"github.com/farseer-go/fs/timingWheel"
 	"sync"
+	"time"
 )
 
 // 当前正在执行的Job列表
@@ -30,16 +32,18 @@ func invokeJob(task TaskEO) {
 			Id:           task.Id,
 			Name:         clientJob.Name,
 			Data:         task.Data,
+			StartAt:      task.StartAt,
 			nextTimespan: 0,
 			progress:     0,
 			status:       Working,
-			sw:           stopwatch.StartNew(),
+			sw:           stopwatch.New(),
 		},
 	}
+	go job.Run()
+
 	lock.Lock()
 	defer lock.Unlock()
 	jobList.Add(task.Id, job)
-	go job.Run()
 }
 
 func (receiver *Job) Run() {
@@ -51,8 +55,17 @@ func (receiver *Job) Run() {
 		}
 	}()
 
+	microseconds := time.Since(receiver.jobContext.StartAt).Microseconds()
+	if microseconds > 0 {
+		flog.Warningf("任务组：%s %d 延迟：%d us", receiver.jobContext.Name, receiver.jobContext.Id, microseconds)
+	}
+
+	// 为了保证任务不被延迟，服务端会提前下发任务，需要客户端做休眠等待
+	<-timingWheel.AddTimePrecision(receiver.jobContext.StartAt).C
+	receiver.jobContext.sw.Start()
 	// 执行任务并拿到结果
 	exception.Try(func() {
+		// 执行任务
 		if receiver.ClientJob.jobFunc(receiver.jobContext) {
 			receiver.jobContext.status = Success
 		} else {
@@ -62,7 +75,7 @@ func (receiver *Job) Run() {
 		receiver.jobContext.status = Fail
 	})
 
-	flog.Infof("任务：%s %d，耗时：%s，结果：%s", receiver.jobContext.Name, receiver.jobContext.Id, receiver.jobContext.sw.GetMillisecondsText(), receiver.jobContext.status.String())
+	flog.ComponentInfof("fSchedule", "任务：%s %d，耗时：%s，结果：%s", receiver.jobContext.Name, receiver.jobContext.Id, receiver.jobContext.sw.GetMillisecondsText(), receiver.jobContext.status.String())
 }
 
 func getJob(taskId int64) *Job {
