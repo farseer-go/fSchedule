@@ -28,10 +28,6 @@ func (module Module) PreInitialize() {
 	timingWheel.Start()
 }
 
-func (module Module) Initialize() {
-
-}
-
 func (module Module) PostInitialize() {
 	webapi.Area("/api/", func() {
 		webapi.RegisterPOST("/check", Check)
