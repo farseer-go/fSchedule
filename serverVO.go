@@ -8,7 +8,7 @@ import (
 	"math/rand"
 )
 
-const tokenName = "FSS-ACCESS-TOKEN"
+const tokenName = "FSchedule-ACCESS-TOKEN"
 
 var defaultServer serverVO
 
