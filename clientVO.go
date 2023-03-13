@@ -7,7 +7,6 @@ import (
 	"github.com/farseer-go/fs/configure"
 	"github.com/farseer-go/fs/flog"
 	"os"
-	"time"
 )
 
 var defaultClient *clientVO
@@ -54,27 +53,6 @@ type ClientJob struct {
 	StartAt  int64  // 任务开始时间（时间戳秒）
 	IsEnable bool   // 任务是否启用
 	jobFunc  JobFunc
-	LogQueue chan *JobLog // 日志通道队列
-}
-
-// 日志结构
-type JobLog struct {
-	TaskId   int64
-	Name     string
-	LogLevel Enum
-	Content  string // 日志内容
-}
-
-type logDto struct {
-	TaskId int64
-	Name   string
-	Log    collections.List[logBody] // 客户端动态注册任务
-}
-
-type logBody struct {
-	LogLevel Enum
-	Content  string
-	CreateAt time.Time
 }
 
 func GetClient() *clientVO {
@@ -91,29 +69,8 @@ func AddJob(isEnable bool, name, caption string, ver int, cron string, startAt i
 		Cron:     cron,
 		StartAt:  startAt,
 		jobFunc:  job,
-		LogQueue: make(chan *JobLog, 2048),
 	}
 	defaultClient.ClientJobs.Add(clientJob)
-	clientJob.startLog()
-}
-
-// Write 写入日志到channel
-func (queue *ClientJob) startLog() {
-	select {
-	case log := <-queue.LogQueue:
-		logBody := logBody{
-			LogLevel: log.LogLevel,
-			Content:  log.Content,
-			CreateAt: time.Now(),
-		}
-		logMsg := logDto{
-			TaskId: log.TaskId,
-			Name:   log.Name,
-			Log:    collections.NewList(logBody),
-		}
-		jsonByte, _ := json.Marshal(logMsg)
-		defaultServer.logReport(jsonByte)
-	}
 }
 
 // 转换成http head

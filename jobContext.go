@@ -10,6 +10,26 @@ import (
 	"time"
 )
 
+// 日志结构
+type JobLog struct {
+	TaskId   int64
+	Name     string
+	LogLevel Enum
+	Content  string // 日志内容
+}
+
+type logDto struct {
+	TaskId int64
+	Name   string
+	Log    collections.List[logBody] // 客户端动态注册任务
+}
+
+type logBody struct {
+	LogLevel Enum
+	Content  string
+	CreateAt time.Time
+}
+
 // JobContext 任务在运行时，更新状态
 type JobContext struct {
 	Id           int64                                  // 主键
@@ -21,6 +41,25 @@ type JobContext struct {
 	sw           *stopwatch.Watch                       // 运行时间
 	StartAt      time.Time                              // 任务开始时间
 	LogQueue     chan JobLog                            // 任务日志
+}
+
+// Write 写入日志到channel
+func (queue *JobContext) startLog() {
+	select {
+	case log := <-queue.LogQueue:
+		logBody := logBody{
+			LogLevel: log.LogLevel,
+			Content:  log.Content,
+			CreateAt: time.Now(),
+		}
+		logMsg := logDto{
+			TaskId: log.TaskId,
+			Name:   log.Name,
+			Log:    collections.NewList(logBody),
+		}
+		jsonByte, _ := json.Marshal(logMsg)
+		defaultServer.logReport(jsonByte)
+	}
 }
 
 // SetNextAt 设置下次运行时间
