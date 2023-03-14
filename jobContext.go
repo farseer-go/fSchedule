@@ -92,7 +92,7 @@ func (receiver *JobContext) getReport() TaskReportDTO {
 	}
 }
 
-// log 记录日志
+// Log log 记录日志
 func (receiver *JobContext) Log(logLevel Enum, contents ...any) string {
 	content := fmt.Sprint(contents...)
 	jobLog := JobLog{
