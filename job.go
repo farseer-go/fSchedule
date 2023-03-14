@@ -37,7 +37,7 @@ func invokeJob(task TaskEO) {
 			progress:     0,
 			status:       Working,
 			sw:           stopwatch.New(),
-			LogQueue:     make(chan JobLog, 2048),
+			LogQueue:     make(chan logContent, 2048),
 		},
 	}
 	go job.Run()

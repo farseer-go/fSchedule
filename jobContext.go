@@ -9,24 +9,16 @@ import (
 	"time"
 )
 
-// 日志结构
-type JobLog struct {
-	TaskId   int64
-	Name     string
-	LogLevel Enum
-	Content  string // 日志内容
-}
-
 type logDto struct {
 	TaskId int64
 	Name   string
-	Log    collections.List[logBody] // 客户端动态注册任务
+	Log    collections.List[logContent] // 客户端动态注册任务
 }
 
-type logBody struct {
+type logContent struct {
 	LogLevel Enum
+	CreateAt int64
 	Content  string
-	CreateAt time.Time
 }
 
 // JobContext 任务在运行时，更新状态
@@ -39,24 +31,14 @@ type JobContext struct {
 	status       TaskStatus                             // 执行状态
 	sw           *stopwatch.Watch                       // 运行时间
 	StartAt      time.Time                              // 任务开始时间
-	LogQueue     chan JobLog                            // 任务日志
+	LogQueue     chan logContent                        // 任务日志
 }
 
 // logReport 上传日志报告
 func (receiver *JobContext) logReport() {
 	select {
 	case log := <-receiver.LogQueue:
-		logBody := logBody{
-			LogLevel: log.LogLevel,
-			Content:  log.Content,
-			CreateAt: time.Now(),
-		}
-		logMsg := logDto{
-			TaskId: log.TaskId,
-			Name:   log.Name,
-			Log:    collections.NewList(logBody),
-		}
-		jsonByte, _ := json.Marshal(logMsg)
+		jsonByte, _ := json.Marshal(logDto{TaskId: receiver.Id, Name: receiver.Name, Log: collections.NewList(log)})
 		defaultServer.logReport(jsonByte)
 	}
 }
@@ -96,11 +78,10 @@ func (receiver *JobContext) getReport() TaskReportDTO {
 
 // log 记录日志
 func (receiver *JobContext) log(logLevel Enum, contents ...any) {
-	jobLog := JobLog{
-		TaskId:   receiver.Id,
-		Name:     receiver.Name,
+	jobLog := logContent{
 		LogLevel: logLevel,
 		Content:  fmt.Sprint(contents...),
+		CreateAt: time.Now().UnixMilli(),
 	}
 	receiver.LogQueue <- jobLog
 }
