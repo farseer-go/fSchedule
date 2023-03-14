@@ -88,7 +88,7 @@ func (receiver *JobContext) log(logLevel Enum, contents ...any) {
 
 // Trace 打印Trace日志
 func (receiver *JobContext) Trace(content ...any) {
-	receiver.log(Trace, content)
+	receiver.log(Trace, content...)
 	flog.Trace(content...)
 }
 
@@ -100,7 +100,7 @@ func (receiver *JobContext) Tracef(format string, a ...any) {
 
 // Debug 打印Debug日志
 func (receiver *JobContext) Debug(contents ...any) {
-	receiver.log(Debug, contents)
+	receiver.log(Debug, contents...)
 	flog.Debug(contents...)
 }
 
@@ -112,7 +112,7 @@ func (receiver *JobContext) Debugf(format string, a ...any) {
 
 // Info 打印Info日志
 func (receiver *JobContext) Info(contents ...any) {
-	receiver.log(Information, contents)
+	receiver.log(Information, contents...)
 	flog.Info(contents...)
 }
 
@@ -124,7 +124,7 @@ func (receiver *JobContext) Infof(format string, a ...any) {
 
 // Warning 打印Warning日志
 func (receiver *JobContext) Warning(contents ...any) {
-	receiver.log(Warning, contents)
+	receiver.log(Warning, contents...)
 	flog.Warning(contents...)
 }
 
@@ -136,7 +136,7 @@ func (receiver *JobContext) Warningf(format string, a ...any) {
 
 // Error 打印Error日志
 func (receiver *JobContext) Error(contents ...any) error {
-	receiver.log(Error, contents)
+	receiver.log(Error, contents...)
 	return flog.Error(contents...)
 }
 
@@ -148,7 +148,7 @@ func (receiver *JobContext) Errorf(format string, a ...any) error {
 
 // Critical 打印Critical日志
 func (receiver *JobContext) Critical(contents ...any) {
-	receiver.log(Critical, contents)
+	receiver.log(Critical, contents...)
 	flog.Critical(contents...)
 }
 

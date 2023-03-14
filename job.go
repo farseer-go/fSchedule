@@ -56,9 +56,9 @@ func (receiver *Job) Run() {
 		}
 	}()
 
-	microseconds := time.Since(receiver.jobContext.StartAt).Microseconds()
-	if microseconds > 0 {
-		flog.Warningf("任务组：%s %d 延迟：%d us", receiver.jobContext.Name, receiver.jobContext.Id, microseconds)
+	taskStartAtSince := time.Since(receiver.jobContext.StartAt)
+	if taskStartAtSince.Microseconds() > 0 {
+		flog.Warningf("任务组：%s %d 延迟：%s", receiver.jobContext.Name, receiver.jobContext.Id, taskStartAtSince.String())
 	}
 
 	// 为了保证任务不被延迟，服务端会提前下发任务，需要客户端做休眠等待
