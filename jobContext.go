@@ -44,6 +44,11 @@ func (receiver *JobContext) logReport() {
 	}()
 }
 
+// close 关闭日志通道
+func (receiver *JobContext) closeLogQueue() {
+	close(receiver.LogQueue)
+}
+
 // SetNextAt 设置下次运行时间
 func (receiver *JobContext) SetNextAt(t time.Time) {
 	receiver.nextTimespan = t.UnixMicro()
