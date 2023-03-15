@@ -36,12 +36,15 @@ type JobContext struct {
 
 // logReport 上传日志报告
 func (receiver *JobContext) logReport() {
-	select {
-	case log := <-receiver.LogQueue:
-		jsonByte, _ := json.Marshal(logDto{TaskId: receiver.Id, Name: receiver.Name, Log: collections.NewList(log)})
-		defaultServer.logReport(jsonByte)
-	default:
-	}
+	go func() {
+		for {
+			select {
+			case log := <-receiver.LogQueue:
+				jsonByte, _ := json.Marshal(logDto{TaskId: receiver.Id, Name: receiver.Name, Log: collections.NewList(log)})
+				defaultServer.logReport(jsonByte)
+			}
+		}
+	}()
 }
 
 // SetNextAt 设置下次运行时间
