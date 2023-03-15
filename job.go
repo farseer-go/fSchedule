@@ -66,6 +66,8 @@ func (receiver *Job) Run() {
 	receiver.jobContext.sw.Start()
 	// 执行任务并拿到结果
 	exception.Try(func() {
+		// 上传日志
+		receiver.jobContext.logReport()
 		// 执行任务
 		if receiver.ClientJob.jobFunc(receiver.jobContext) {
 			receiver.jobContext.status = Success
@@ -74,8 +76,9 @@ func (receiver *Job) Run() {
 		}
 	}).CatchException(func(exp any) {
 		receiver.jobContext.status = Fail
+		close(receiver.jobContext.LogQueue)
 	})
-	receiver.jobContext.closeLogQueue()
+	defer receiver.jobContext.closeLogQueue()
 
 	flog.ComponentInfof("fSchedule", "任务：%s %d，耗时：%s，结果：%s", receiver.jobContext.Name, receiver.jobContext.Id, receiver.jobContext.sw.GetMillisecondsText(), receiver.jobContext.status.String())
 }

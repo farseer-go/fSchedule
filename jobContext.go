@@ -64,8 +64,6 @@ func (receiver *JobContext) report() bool {
 	jsonByte, _ := json.Marshal(receiver.getReport())
 	apiResponse, _ := defaultServer.taskReport(jsonByte)
 
-	// 上传日志
-	receiver.logReport()
 	return apiResponse.StatusCode == 200
 }
 
