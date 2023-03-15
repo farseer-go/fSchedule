@@ -72,8 +72,10 @@ func (receiver *Job) Run() {
 		} else {
 			receiver.jobContext.status = Fail
 		}
+		close(receiver.jobContext.LogQueue)
 	}).CatchException(func(exp any) {
 		receiver.jobContext.status = Fail
+		close(receiver.jobContext.LogQueue)
 	})
 
 	flog.ComponentInfof("fSchedule", "任务：%s %d，耗时：%s，结果：%s", receiver.jobContext.Name, receiver.jobContext.Id, receiver.jobContext.sw.GetMillisecondsText(), receiver.jobContext.status.String())

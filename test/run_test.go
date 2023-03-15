@@ -19,9 +19,9 @@ func (module startupModule) DependsModule() []modules.FarseerModule {
 func (module startupModule) PostInitialize() {
 	for i := 1; i <= 1; i++ {
 		fSchedule.AddJob(true, "Hello"+strconv.Itoa(i), "测试HelloJob"+strconv.Itoa(i), 1, "0/1 * * * * ?", 1674571566, func(jobContext *fSchedule.JobContext) bool {
-			jobContext.Debug("测试日志")
-			jobContext.Tracef("测试日志")
-			jobContext.Info("测试日志")
+			jobContext.Debug("测试日志2")
+			jobContext.Tracef("测试日志1")
+			jobContext.Info("测试日志3")
 			return true
 		})
 	}
