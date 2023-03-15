@@ -59,6 +59,7 @@ func (queue *JobContext) startLog() {
 		}
 		jsonByte, _ := json.Marshal(logMsg)
 		defaultServer.logReport(jsonByte)
+	default:
 	}
 }
 
