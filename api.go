@@ -5,14 +5,15 @@ import (
 	"github.com/farseer-go/fs/exception"
 	"github.com/farseer-go/fs/flog"
 	"github.com/farseer-go/fs/stopwatch"
+	"github.com/farseer-go/fs/system"
 )
 
 // ResourceVO 客户端资源情况
 type ResourceVO struct {
 	QueueCount    int     // 排队中的任务数量
 	WorkCount     int     // 正在处理的任务数量
-	CpuUsage      float32 // CPU百分比
-	MemoryUsage   float32 // 内存百分比
+	CpuUsage      float64 // CPU百分比
+	MemoryUsage   float64 // 内存百分比
 	AllowSchedule bool    // 是否允许调度
 }
 
@@ -57,11 +58,12 @@ func Kill(TaskId int64) {
 
 // 获取当前客户端的环境信息
 func getResource() ResourceVO {
+	resource := system.GetResource()
 	return ResourceVO{
-		QueueCount:    0,
-		WorkCount:     0,
-		CpuUsage:      0,
-		MemoryUsage:   0,
+		QueueCount:    jobList.Count(),
+		WorkCount:     jobList.Count(),
+		CpuUsage:      resource.CpuUsagePercent,
+		MemoryUsage:   resource.MemoryUsagePercent,
 		AllowSchedule: true, // 后面看下这个变量如果控制
 	}
 }

@@ -7,6 +7,7 @@ require (
 	github.com/farseer-go/fs v0.7.0
 	github.com/farseer-go/utils v0.3.0
 	github.com/farseer-go/webapi v0.3.0
+	github.com/shirou/gopsutil v2.21.11+incompatible
 )
 
 require (
