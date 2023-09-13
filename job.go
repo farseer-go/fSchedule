@@ -67,7 +67,7 @@ func (receiver *Job) Run() {
 	// 执行任务并拿到结果
 	exception.Try(func() {
 		// 上传日志
-		receiver.jobContext.logReport()
+		receiver.jobContext.enableReportLog()
 		defer receiver.jobContext.closeLogQueue()
 		// 执行任务
 		if receiver.ClientJob.jobFunc(receiver.jobContext) {

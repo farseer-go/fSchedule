@@ -34,8 +34,8 @@ type JobContext struct {
 	LogQueue     chan logContent                        // 任务日志
 }
 
-// logReport 上传日志报告
-func (receiver *JobContext) logReport() {
+// enableReportLog 开启上传日志报告
+func (receiver *JobContext) enableReportLog() {
 	go func() {
 		for log := range receiver.LogQueue {
 			jsonByte, _ := json.Marshal(logDto{TaskId: receiver.Id, Name: receiver.Name, Log: collections.NewList(log)})
