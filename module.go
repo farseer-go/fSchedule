@@ -26,6 +26,10 @@ func (module Module) PreInitialize() {
 	// 客户端配置
 	NewClient()
 	timingWheel.Start()
+
+	// 初始化日志队列
+	logQueue = make(chan logContent, 2048)
+
 }
 
 func (module Module) PostInitialize() {
@@ -41,6 +45,10 @@ func (module Module) PostInitialize() {
 
 	fs.AddInitCallback("注册客户端", func() {
 		defaultClient.RegistryClient()
+	})
+
+	fs.AddInitCallback("开启上传调度中心日志", func() {
+		go enableReportLog()
 	})
 }
 

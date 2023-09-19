@@ -4,23 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/farseer-go/collections"
+	"github.com/farseer-go/fs/core/eumLogLevel"
 	"github.com/farseer-go/fs/flog"
 	"github.com/farseer-go/fs/stopwatch"
 	"time"
 )
-
-type logDto struct {
-	TaskGroupId int64 // 任务组ID
-	TaskId      int64
-	Name        string
-	Log         collections.List[logContent] // 客户端动态注册任务
-}
-
-type logContent struct {
-	LogLevel Enum
-	CreateAt int64
-	Content  string
-}
 
 // JobContext 任务在运行时，更新状态
 type JobContext struct {
@@ -33,22 +21,6 @@ type JobContext struct {
 	status       TaskStatus                             // 执行状态
 	sw           *stopwatch.Watch                       // 运行时间
 	StartAt      time.Time                              // 任务开始时间
-	LogQueue     chan logContent                        // 任务日志
-}
-
-// enableReportLog 开启上传日志报告
-func (receiver *JobContext) enableReportLog() {
-	go func() {
-		for log := range receiver.LogQueue {
-			jsonByte, _ := json.Marshal(logDto{TaskId: receiver.Id, TaskGroupId: receiver.TaskGroupId, Name: receiver.Name, Log: collections.NewList(log)})
-			defaultServer.logReport(jsonByte)
-		}
-	}()
-}
-
-// close 关闭日志通道
-func (receiver *JobContext) closeLogQueue() {
-	close(receiver.LogQueue)
 }
 
 // SetNextAt 设置下次运行时间
@@ -84,83 +56,85 @@ func (receiver *JobContext) getReport() TaskReportDTO {
 }
 
 // log 记录日志
-func (receiver *JobContext) log(logLevel Enum, contents ...any) {
-	jobLog := logContent{
-		LogLevel: logLevel,
-		Content:  fmt.Sprint(contents...),
-		CreateAt: time.Now().UnixMilli(),
+func (receiver *JobContext) log(logLevel eumLogLevel.Enum, contents ...any) {
+	logQueue <- logContent{
+		TaskId:      receiver.Id,
+		TaskGroupId: receiver.TaskGroupId,
+		Name:        receiver.Name,
+		LogLevel:    logLevel,
+		CreateAt:    time.Now().UnixMilli(),
+		Content:     fmt.Sprint(contents...),
 	}
-	receiver.LogQueue <- jobLog
 }
 
 // Trace 打印Trace日志
 func (receiver *JobContext) Trace(content ...any) {
-	receiver.log(Trace, content...)
+	receiver.log(eumLogLevel.Trace, content...)
 	flog.Trace(content...)
 }
 
 // Tracef 打印Trace日志
 func (receiver *JobContext) Tracef(format string, a ...any) {
-	receiver.log(Trace, fmt.Sprintf(format, a...))
+	receiver.log(eumLogLevel.Trace, fmt.Sprintf(format, a...))
 	flog.Tracef(format, a...)
 }
 
 // Debug 打印Debug日志
 func (receiver *JobContext) Debug(contents ...any) {
-	receiver.log(Debug, contents...)
+	receiver.log(eumLogLevel.Debug, contents...)
 	flog.Debug(contents...)
 }
 
 // Debugf 打印Debug日志
 func (receiver *JobContext) Debugf(format string, a ...any) {
-	receiver.log(Debug, fmt.Sprintf(format, a...))
+	receiver.log(eumLogLevel.Debug, fmt.Sprintf(format, a...))
 	flog.Debugf(format, a...)
 }
 
 // Info 打印Info日志
 func (receiver *JobContext) Info(contents ...any) {
-	receiver.log(Information, contents...)
+	receiver.log(eumLogLevel.Information, contents...)
 	flog.Info(contents...)
 }
 
 // Infof 打印Info日志
 func (receiver *JobContext) Infof(format string, a ...any) {
-	receiver.log(Information, fmt.Sprintf(format, a...))
+	receiver.log(eumLogLevel.Information, fmt.Sprintf(format, a...))
 	flog.Infof(format, a...)
 }
 
 // Warning 打印Warning日志
 func (receiver *JobContext) Warning(contents ...any) {
-	receiver.log(Warning, contents...)
+	receiver.log(eumLogLevel.Warning, contents...)
 	flog.Warning(contents...)
 }
 
 // Warningf 打印Warning日志
 func (receiver *JobContext) Warningf(format string, a ...any) {
-	receiver.log(Warning, fmt.Sprintf(format, a...))
+	receiver.log(eumLogLevel.Warning, fmt.Sprintf(format, a...))
 	flog.Warningf(format, a...)
 }
 
 // Error 打印Error日志
 func (receiver *JobContext) Error(contents ...any) error {
-	receiver.log(Error, contents...)
+	receiver.log(eumLogLevel.Error, contents...)
 	return flog.Error(contents...)
 }
 
 // Errorf 打印Error日志
 func (receiver *JobContext) Errorf(format string, a ...any) error {
-	receiver.log(Error, fmt.Sprintf(format, a...))
+	receiver.log(eumLogLevel.Error, fmt.Sprintf(format, a...))
 	return flog.Errorf(format, a...)
 }
 
 // Critical 打印Critical日志
 func (receiver *JobContext) Critical(contents ...any) {
-	receiver.log(Critical, contents...)
+	receiver.log(eumLogLevel.Critical, contents...)
 	flog.Critical(contents...)
 }
 
 // Criticalf 打印Critical日志
 func (receiver *JobContext) Criticalf(format string, a ...any) {
-	receiver.log(Critical, fmt.Sprintf(format, a...))
+	receiver.log(eumLogLevel.Critical, fmt.Sprintf(format, a...))
 	flog.Criticalf(format, a...)
 }

@@ -37,7 +37,6 @@ func invokeJob(task TaskEO) {
 			progress:     0,
 			status:       Working,
 			sw:           stopwatch.New(),
-			LogQueue:     make(chan logContent, 2048),
 		},
 	}
 	go job.Run()
@@ -67,10 +66,6 @@ func (receiver *Job) Run() {
 	// 执行任务并拿到结果
 	exception.Try(func() {
 		receiver.jobContext.sw.Start()
-		// 上传日志
-		receiver.jobContext.enableReportLog()
-		defer receiver.jobContext.closeLogQueue()
-
 		// 执行任务
 		if receiver.ClientJob.jobFunc(receiver.jobContext) {
 			receiver.jobContext.status = Success
@@ -79,7 +74,6 @@ func (receiver *Job) Run() {
 		}
 	}).CatchException(func(exp any) {
 		receiver.jobContext.status = Fail
-		close(receiver.jobContext.LogQueue)
 	})
 
 	flog.ComponentInfof("fSchedule", "任务：%s %d，耗时：%s，结果：%s", receiver.jobContext.Name, receiver.jobContext.Id, receiver.jobContext.sw.GetMillisecondsText(), receiver.jobContext.status.String())
