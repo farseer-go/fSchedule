@@ -40,7 +40,7 @@ func (receiver *serverVO) getAddress(ignoreIndex int) (serverAddress, serverInde
 func (receiver *serverVO) registry(bodyJson []byte) (core.ApiResponse[any], error) {
 	address, _ := receiver.getAddress(-1)
 	var apiResponse core.ApiResponse[any]
-	err := http.NewClient(address+"/api/registry").HeadAdd(tokenName, receiver.Token).Body(bodyJson).Timeout(5000).PostUnmarshal(&apiResponse)
+	_, err := http.NewClient(address+"/api/registry").HeadAdd(tokenName, receiver.Token).Body(bodyJson).Timeout(5000).PostUnmarshal(&apiResponse)
 	if err != nil {
 		_ = flog.Errorf("客户端注册失败：%s", err.Error())
 	}
@@ -51,12 +51,13 @@ func (receiver *serverVO) registry(bodyJson []byte) (core.ApiResponse[any], erro
 func (receiver *serverVO) logout(bodyJson []byte) (core.ApiResponse[any], error) {
 	address, _ := receiver.getAddress(-1)
 	var apiResponse core.ApiResponse[any]
-	err := http.NewClient(address+"/api/logout").HeadAdd(tokenName, receiver.Token).Body(bodyJson).PostUnmarshal(&apiResponse)
+	_, err := http.NewClient(address+"/api/logout").HeadAdd(tokenName, receiver.Token).Body(bodyJson).PostUnmarshal(&apiResponse)
 	return apiResponse, err
 }
 
 type TaskReportDTO struct {
 	Id           int64                                  // 主键
+	TaskGroupId  int64                                  // 任务组ID
 	Name         string                                 // 实现Job的特性名称（客户端识别哪个实现类）
 	Data         collections.Dictionary[string, string] // 数据
 	NextTimespan int64                                  // 下次执行时间
@@ -69,7 +70,7 @@ type TaskReportDTO struct {
 func (receiver *serverVO) taskReport(bodyJson []byte) (core.ApiResponse[any], error) {
 	address, _ := receiver.getAddress(-1)
 	var apiResponse core.ApiResponse[any]
-	err := http.NewClient(address+"/api/taskReport").HeadAdd(tokenName, receiver.Token).Body(bodyJson).PostUnmarshal(&apiResponse)
+	_, err := http.NewClient(address+"/api/taskReport").HeadAdd(tokenName, receiver.Token).Body(bodyJson).PostUnmarshal(&apiResponse)
 	return apiResponse, err
 }
 
@@ -77,6 +78,6 @@ func (receiver *serverVO) taskReport(bodyJson []byte) (core.ApiResponse[any], er
 func (receiver *serverVO) logReport(bodyJson []byte) (core.ApiResponse[any], error) {
 	address, _ := receiver.getAddress(-1)
 	var apiResponse core.ApiResponse[any]
-	err := http.NewClient(address+"/api/logReport").HeadAdd(tokenName, receiver.Token).Body(bodyJson).PostUnmarshal(&apiResponse)
+	_, err := http.NewClient(address+"/api/logReport").HeadAdd(tokenName, receiver.Token).Body(bodyJson).PostUnmarshal(&apiResponse)
 	return apiResponse, err
 }

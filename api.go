@@ -30,7 +30,7 @@ func Invoke(task TaskEO) ResourceVO {
 	sw := stopwatch.StartNew()
 	invokeJob(task)
 	if sw.ElapsedMilliseconds() > 0 {
-		flog.Infof("Invoke %s %d，%s", task.Name, task.Id, sw.GetMicrosecondsText())
+		flog.Infof("Invoke %s(%d) %d，%s", task.Name, task.TaskGroupId, task.Id, sw.GetMicrosecondsText())
 	}
 	return getResource()
 }

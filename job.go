@@ -63,12 +63,14 @@ func (receiver *Job) Run() {
 
 	// 为了保证任务不被延迟，服务端会提前下发任务，需要客户端做休眠等待
 	<-timingWheel.AddTimePrecision(receiver.jobContext.StartAt).C
-	receiver.jobContext.sw.Start()
+
 	// 执行任务并拿到结果
 	exception.Try(func() {
+		receiver.jobContext.sw.Start()
 		// 上传日志
 		receiver.jobContext.enableReportLog()
 		defer receiver.jobContext.closeLogQueue()
+
 		// 执行任务
 		if receiver.ClientJob.jobFunc(receiver.jobContext) {
 			receiver.jobContext.status = Success

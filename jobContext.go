@@ -10,9 +10,10 @@ import (
 )
 
 type logDto struct {
-	TaskId int64
-	Name   string
-	Log    collections.List[logContent] // 客户端动态注册任务
+	TaskGroupId int64 // 任务组ID
+	TaskId      int64
+	Name        string
+	Log         collections.List[logContent] // 客户端动态注册任务
 }
 
 type logContent struct {
@@ -24,6 +25,7 @@ type logContent struct {
 // JobContext 任务在运行时，更新状态
 type JobContext struct {
 	Id           int64                                  // 主键
+	TaskGroupId  int64                                  // 任务组ID
 	Name         string                                 // 实现Job的特性名称（客户端识别哪个实现类）
 	Data         collections.Dictionary[string, string] // 数据
 	nextTimespan int64                                  // 下次执行时间
@@ -38,7 +40,7 @@ type JobContext struct {
 func (receiver *JobContext) enableReportLog() {
 	go func() {
 		for log := range receiver.LogQueue {
-			jsonByte, _ := json.Marshal(logDto{TaskId: receiver.Id, Name: receiver.Name, Log: collections.NewList(log)})
+			jsonByte, _ := json.Marshal(logDto{TaskId: receiver.Id, TaskGroupId: receiver.TaskGroupId, Name: receiver.Name, Log: collections.NewList(log)})
 			defaultServer.logReport(jsonByte)
 		}
 	}()
@@ -71,6 +73,7 @@ func (receiver *JobContext) report() bool {
 func (receiver *JobContext) getReport() TaskReportDTO {
 	return TaskReportDTO{
 		Id:           receiver.Id,
+		TaskGroupId:  receiver.TaskGroupId,
 		Name:         receiver.Name,
 		Data:         receiver.Data,
 		NextTimespan: receiver.nextTimespan,
