@@ -40,11 +40,8 @@ func Status(TaskId int64) TaskReportDTO {
 	job := getJob(TaskId)
 	if job == nil {
 		return TaskReportDTO{
-			NextTimespan: 0,
-			Progress:     0,
-			Status:       Fail,
-			RunSpeed:     0,
-			Data:         collections.Dictionary[string, string]{},
+			Data:   collections.Dictionary[string, string]{},
+			Status: Fail,
 		}
 	}
 	return job.jobContext.getReport()
