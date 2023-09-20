@@ -26,7 +26,7 @@ type JobContext struct {
 
 // SetNextAt 设置下次运行时间
 func (receiver *JobContext) SetNextAt(t time.Time) {
-	receiver.nextTimespan = t.UnixMicro()
+	receiver.nextTimespan = t.UnixMilli()
 }
 
 // SetProgress 设置任务进度
