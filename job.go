@@ -26,6 +26,9 @@ func invokeJob(task TaskEO) {
 		return item.Name == task.Name
 	}).First()
 
+	if task.Id == 0 || task.TaskGroupId == 0 || task.Name == "" || clientJob.Name == "" {
+		return
+	}
 	job := &Job{
 		ClientJob: clientJob,
 		jobContext: &JobContext{ // 构造上下文
