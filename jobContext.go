@@ -14,6 +14,7 @@ import (
 type JobContext struct {
 	Id           int64                                  // 主键
 	TaskGroupId  int64                                  // 任务组ID
+	Ver          int                                    // 任务版本
 	Name         string                                 // 实现Job的特性名称（客户端识别哪个实现类）
 	Data         collections.Dictionary[string, string] // 数据
 	nextTimespan int64                                  // 下次执行时间
@@ -47,6 +48,7 @@ func (receiver *JobContext) getReport() TaskReportDTO {
 		Id:           receiver.Id,
 		TaskGroupId:  receiver.TaskGroupId,
 		Name:         receiver.Name,
+		Ver:          receiver.Ver,
 		Data:         receiver.Data,
 		NextTimespan: receiver.nextTimespan,
 		Progress:     receiver.progress,
@@ -61,6 +63,7 @@ func (receiver *JobContext) log(logLevel eumLogLevel.Enum, contents ...any) {
 		TaskId:      receiver.Id,
 		TaskGroupId: receiver.TaskGroupId,
 		Name:        receiver.Name,
+		Ver:         receiver.Ver,
 		LogLevel:    logLevel,
 		CreateAt:    time.Now().UnixMilli(),
 		Content:     fmt.Sprint(contents...),

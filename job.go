@@ -30,6 +30,8 @@ func invokeJob(task TaskEO) {
 		ClientJob: clientJob,
 		jobContext: &JobContext{ // 构造上下文
 			Id:           task.Id,
+			TaskGroupId:  task.TaskGroupId,
+			Ver:          clientJob.Ver,
 			Name:         clientJob.Name,
 			Data:         task.Data,
 			StartAt:      task.StartAt,

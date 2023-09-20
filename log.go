@@ -19,6 +19,7 @@ type logContent struct {
 	TaskId      int64  // 主键
 	TaskGroupId int64  // 任务组ID
 	Name        string // 实现Job的特性名称（客户端识别哪个实现类）
+	Ver         int    // 版本
 	LogLevel    eumLogLevel.Enum
 	CreateAt    int64
 	Content     string
