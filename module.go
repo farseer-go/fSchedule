@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/farseer-go/fs"
 	"github.com/farseer-go/fs/configure"
+	"github.com/farseer-go/fs/container"
+	"github.com/farseer-go/fs/core"
 	"github.com/farseer-go/fs/modules"
 	"github.com/farseer-go/fs/timingWheel"
 	"github.com/farseer-go/webapi"
@@ -43,13 +45,12 @@ func (module Module) PostInitialize() {
 	webapi.UsePprof()
 	go webapi.Run(fmt.Sprintf("%s:%d", defaultClient.ClientIp, defaultClient.ClientPort))
 
-	fs.AddInitCallback("注册客户端", func() {
-		defaultClient.RegistryClient()
-	})
-
 	fs.AddInitCallback("开启上传调度中心日志", func() {
 		go enableReportLog()
 	})
+
+	// 注册健康检查
+	container.RegisterInstance[core.IHealthCheck](&healthCheck{}, "fSchedule")
 }
 
 func (module Module) Shutdown() {

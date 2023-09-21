@@ -84,13 +84,14 @@ func (receiver *clientVO) getHttpHead() map[string]any {
 }
 
 // RegistryClient 注册客户端
-func (receiver *clientVO) RegistryClient() {
+func (receiver *clientVO) RegistryClient() error {
 	jsonByte, _ := json.Marshal(receiver)
 	apiResponse, _ := defaultServer.registry(jsonByte)
 	if apiResponse.StatusCode != 200 {
-		flog.Panic("注册失败，服务端状态码为：", apiResponse.StatusCode)
+		return flog.Errorf("注册失败，服务端状态码为：", apiResponse.StatusCode)
 	}
-	flog.ComponentInfo("fSchedule", "客户端注册成功！")
+	flog.Printf("\t客户端(%d) %s:%d注册成功！\n", receiver.ClientId, receiver.ClientIp, receiver.ClientPort)
+	return nil
 }
 
 // LogoutClient 客户端下线
