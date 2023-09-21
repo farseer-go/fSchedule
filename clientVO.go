@@ -25,7 +25,7 @@ func NewClient() {
 	defaultClient = &clientVO{
 		ClientId:   fs.AppId,
 		ClientName: hostname,
-		ClientIp:   fs.AppIp,
+		ClientIp:   "",
 		ClientPort: 8888, // 先填写默认值
 		ClientJobs: collections.NewList[ClientJob](),
 	}
@@ -88,8 +88,10 @@ func (receiver *clientVO) RegistryClient() error {
 	jsonByte, _ := json.Marshal(receiver)
 	apiResponse, _ := defaultServer.registry(jsonByte)
 	if apiResponse.StatusCode != 200 {
-		return flog.Errorf("注册失败，服务端状态码为：", apiResponse.StatusCode)
+		return flog.Errorf("注册失败：%d %s", apiResponse.StatusCode, apiResponse.StatusMessage)
 	}
+	receiver.ClientIp = apiResponse.Data.ClientIp
+	receiver.ClientPort = apiResponse.Data.ClientPort
 	flog.Printf("\t客户端(%d) %s:%d注册成功！\n", receiver.ClientId, receiver.ClientIp, receiver.ClientPort)
 	return nil
 }

@@ -36,10 +36,15 @@ func (receiver *serverVO) getAddress(ignoreIndex int) (serverAddress, serverInde
 	return receiver.Address[index], index
 }
 
+type RegistryResponse struct {
+	ClientIp   string // 客户端IP
+	ClientPort int    // 客户端端口
+}
+
 // 服务端注册接口
-func (receiver *serverVO) registry(bodyJson []byte) (core.ApiResponse[any], error) {
+func (receiver *serverVO) registry(bodyJson []byte) (core.ApiResponse[RegistryResponse], error) {
 	address, _ := receiver.getAddress(-1)
-	var apiResponse core.ApiResponse[any]
+	var apiResponse core.ApiResponse[RegistryResponse]
 	_, err := http.NewClient(address+"/api/registry").HeadAdd(tokenName, receiver.Token).Body(bodyJson).Timeout(5000).PostUnmarshal(&apiResponse)
 	if err != nil {
 		_ = flog.Errorf("客户端注册失败：%s", err.Error())
