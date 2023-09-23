@@ -116,7 +116,6 @@ func (receiver *clientVO) RegistryClient() error {
 	}
 	receiver.ClientIp = apiResponse.Data.ClientIp
 	receiver.ClientPort = apiResponse.Data.ClientPort
-	flog.Printf("\t客户端(%d) %s:%d注册成功！\n", receiver.ClientId, receiver.ClientIp, receiver.ClientPort)
 	return nil
 }
 
