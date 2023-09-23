@@ -9,6 +9,7 @@ import (
 	"github.com/farseer-go/fs/parse"
 	"github.com/farseer-go/fs/stopwatch"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -31,6 +32,11 @@ func NewClient() {
 		ClientIp:   "",
 		ClientPort: 8888, // 先填写默认值
 		ClientJobs: collections.NewList[ClientJob](),
+	}
+
+	// 优先使用本地IP
+	if strings.HasPrefix(fs.AppIp, "192.168.") || strings.HasPrefix(fs.AppIp, "172.20.") || strings.HasPrefix(fs.AppIp, "10.") {
+		defaultClient.ClientIp = fs.AppIp
 	}
 
 	// 如果手动配置了客户端IP，则覆盖
