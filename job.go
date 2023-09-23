@@ -62,7 +62,7 @@ func (receiver *Job) Run() {
 
 	taskStartAtSince := time.Since(receiver.jobContext.StartAt)
 	if taskStartAtSince.Microseconds() > 0 {
-		flog.Warningf("任务组：%s %d 延迟：%s", receiver.jobContext.Name, receiver.jobContext.Id, taskStartAtSince.String())
+		flog.Warningf("任务组：%s（%d） %d 延迟：%s", receiver.jobContext.Name, receiver.jobContext.TaskGroupId, receiver.jobContext.Id, taskStartAtSince.String())
 	}
 
 	// 为了保证任务不被延迟，服务端会提前下发任务，需要客户端做休眠等待
@@ -81,7 +81,7 @@ func (receiver *Job) Run() {
 		receiver.jobContext.status = Fail
 	})
 
-	flog.ComponentInfof("fSchedule", "任务：%s %d，耗时：%s，结果：%s", receiver.jobContext.Name, receiver.jobContext.Id, receiver.jobContext.sw.GetMillisecondsText(), receiver.jobContext.status.String())
+	flog.ComponentInfof("fSchedule", "任务：%s（%d） %d，耗时：%s，结果：%s", receiver.jobContext.Name, receiver.jobContext.TaskGroupId, receiver.jobContext.Id, receiver.jobContext.sw.GetMillisecondsText(), receiver.jobContext.status.String())
 }
 
 func getJob(taskId int64) *Job {

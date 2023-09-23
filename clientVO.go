@@ -43,6 +43,7 @@ func NewClient() {
 	}
 }
 
+// JobFunc 客户端要执行的JOB
 type JobFunc func(jobContext *JobContext) bool
 
 type ClientJob struct {
