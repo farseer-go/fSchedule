@@ -6,6 +6,7 @@ import (
 	"github.com/farseer-go/fs/configure"
 	"github.com/farseer-go/fs/container"
 	"github.com/farseer-go/fs/core"
+	"github.com/farseer-go/fs/flog"
 	"github.com/farseer-go/fs/modules"
 	"github.com/farseer-go/fs/timingWheel"
 	"github.com/farseer-go/webapi"
@@ -35,6 +36,11 @@ func (module Module) PreInitialize() {
 }
 
 func (module Module) PostInitialize() {
+	// 调试状态下，不开启与调度中心的通信
+	if configure.GetBool("FSchedule.Debug.Enable") {
+		flog.Warning("FSchedule当前为调试状态，将模拟调用任务")
+		return
+	}
 	webapi.Area("/api/", func() {
 		webapi.RegisterPOST("/check", Check)
 		webapi.RegisterPOST("/invoke", Invoke)

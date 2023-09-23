@@ -6,7 +6,10 @@ import (
 	"github.com/farseer-go/fs"
 	"github.com/farseer-go/fs/configure"
 	"github.com/farseer-go/fs/flog"
+	"github.com/farseer-go/fs/parse"
+	"github.com/farseer-go/fs/stopwatch"
 	"os"
+	"time"
 )
 
 var defaultClient *clientVO
@@ -72,6 +75,26 @@ func AddJob(isEnable bool, name, caption string, ver int, cron string, startAt i
 		jobFunc:  job,
 	}
 	defaultClient.ClientJobs.Add(clientJob)
+
+	// 如果是调试状态，则模拟调度
+	if configure.GetBool("FSchedule.Debug.Enable") {
+		jobContext := &JobContext{
+			Id:           888,
+			TaskGroupId:  888,
+			Ver:          888,
+			Name:         name,
+			Data:         collections.NewDictionary[string, string](),
+			nextTimespan: 0,
+			progress:     0,
+			status:       Working,
+			sw:           stopwatch.New(),
+			StartAt:      time.Now(),
+		}
+		for k, v := range configure.GetSubNodes("FSchedule.Debug." + name) {
+			jobContext.Data.Add(k, parse.ToString(v))
+		}
+		job(jobContext)
+	}
 }
 
 // 转换成http head
