@@ -7,6 +7,7 @@ require (
 	github.com/farseer-go/fs v0.8.0
 	github.com/farseer-go/utils v0.8.0
 	github.com/farseer-go/webapi v0.8.0
+	github.com/farseer-go/linkTrace v0.0.0-20231014130523-ebfeba5c1a4a
 	github.com/shirou/gopsutil v2.21.11+incompatible
 )
 
