@@ -7,7 +7,6 @@ require (
 	github.com/farseer-go/fs v0.8.0
 	github.com/farseer-go/utils v0.8.0
 	github.com/farseer-go/webapi v0.8.0
-
 	github.com/shirou/gopsutil v2.21.11+incompatible
 )
 
@@ -24,7 +23,6 @@ require (
 	github.com/klauspost/compress v1.16.3 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/rogpeppe/go-internal v1.6.1 // indirect
-	github.com/timandy/routine v1.1.1 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.48.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
