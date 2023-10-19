@@ -1,11 +1,14 @@
 package fSchedule
 
 import (
+	"fmt"
 	"github.com/farseer-go/collections"
+	"github.com/farseer-go/fs/container"
 	"github.com/farseer-go/fs/exception"
 	"github.com/farseer-go/fs/flog"
 	"github.com/farseer-go/fs/stopwatch"
 	"github.com/farseer-go/fs/timingWheel"
+	"github.com/farseer-go/fs/trace"
 	"sync"
 	"time"
 )
@@ -18,6 +21,8 @@ var lock = &sync.RWMutex{}
 type Job struct {
 	ClientJob  ClientJob
 	jobContext *JobContext
+	// 链路追踪
+	traceManager trace.IManager
 }
 
 // 接受来自服务端的任务
@@ -43,6 +48,7 @@ func invokeJob(task TaskEO) {
 			status:       Working,
 			sw:           stopwatch.New(),
 		},
+		traceManager: container.Resolve[trace.IManager](),
 	}
 	go job.Run()
 
@@ -68,6 +74,7 @@ func (receiver *Job) Run() {
 	// 为了保证任务不被延迟，服务端会提前下发任务，需要客户端做休眠等待
 	<-timingWheel.AddTimePrecision(receiver.jobContext.StartAt).C
 
+	entryFSchedule := receiver.traceManager.EntryFSchedule(receiver.jobContext.Name, receiver.jobContext.TaskGroupId, receiver.jobContext.Id)
 	// 执行任务并拿到结果
 	exception.Try(func() {
 		receiver.jobContext.sw.Start()
@@ -79,8 +86,9 @@ func (receiver *Job) Run() {
 		}
 	}).CatchException(func(exp any) {
 		receiver.jobContext.status = Fail
+		entryFSchedule.Error(fmt.Errorf("%s", exp))
 	})
-
+	entryFSchedule.End()
 	flog.ComponentInfof("fSchedule", "任务：%s（%d） %d，耗时：%s，结果：%s", receiver.jobContext.Name, receiver.jobContext.TaskGroupId, receiver.jobContext.Id, receiver.jobContext.sw.GetMillisecondsText(), receiver.jobContext.status.String())
 }
 
