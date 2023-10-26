@@ -70,18 +70,33 @@ func GetClient() *clientVO {
 	return defaultClient
 }
 
+type Option struct {
+	StartAt int64                                  // 任务开始时间（时间戳秒）
+	Data    collections.Dictionary[string, string] // 第一次注册时使用
+}
+type options func(opt *Option)
+
 // AddJob 客户端支持的任务
-func AddJob(isEnable bool, name, caption string, ver int, cron string, startAt int64, job JobFunc) {
-	clientJob := ClientJob{
+func AddJob(isEnable bool, name, caption string, ver int, cron string, job JobFunc, ops ...options) {
+	// 说明没有启用调度中心
+	if defaultClient == nil {
+		return
+	}
+	// 设置额度参数
+	opt := &Option{Data: collections.NewDictionary[string, string]()}
+	for _, op := range ops {
+		op(opt)
+	}
+	defaultClient.ClientJobs.Add(ClientJob{
 		Name:     name,
 		IsEnable: isEnable,
 		Caption:  caption,
 		Ver:      ver,
 		Cron:     cron,
-		StartAt:  startAt,
 		jobFunc:  job,
-	}
-	defaultClient.ClientJobs.Add(clientJob)
+		StartAt:  opt.StartAt,
+		Data:     opt.Data,
+	})
 
 	// 如果是调试状态，则模拟调度
 	if configure.GetBool("FSchedule.Debug.Enable") {
