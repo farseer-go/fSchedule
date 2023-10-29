@@ -23,6 +23,7 @@ require (
 	github.com/klauspost/compress v1.16.3 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/rogpeppe/go-internal v1.6.1 // indirect
+	github.com/timandy/routine v1.1.2 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.48.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
