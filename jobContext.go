@@ -119,9 +119,9 @@ func (receiver *JobContext) Warningf(format string, a ...any) {
 }
 
 // Error 打印Error日志
-func (receiver *JobContext) Error(contents ...any) error {
+func (receiver *JobContext) Error(contents ...any) {
 	receiver.log(eumLogLevel.Error, contents...)
-	return flog.Error(contents...)
+	_ = flog.Error(contents...)
 }
 
 // Errorf 打印Error日志
