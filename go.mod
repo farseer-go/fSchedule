@@ -3,11 +3,11 @@ module github.com/farseer-go/fSchedule
 go 1.19
 
 require (
-	github.com/farseer-go/collections v0.9.0
-	github.com/farseer-go/fs v0.9.0
+	github.com/farseer-go/collections v0.10.0
+	github.com/farseer-go/fs v0.10.0
 	github.com/farseer-go/utils v0.9.0
 	github.com/farseer-go/webapi v0.9.0
-	github.com/shirou/gopsutil/v3 v3.23.10
+	github.com/shirou/gopsutil/v3 v3.23.11
 )
 
 require (
@@ -28,7 +28,7 @@ require (
 	github.com/timandy/routine v1.1.2 // indirect
 	golang.org/x/crypto v0.14.0 // indirect
 	golang.org/x/net v0.17.0 // indirect
-	golang.org/x/sys v0.13.0 // indirect
+	golang.org/x/sys v0.15.0 // indirect
 	golang.org/x/text v0.13.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
