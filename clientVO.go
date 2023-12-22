@@ -8,7 +8,6 @@ import (
 	"github.com/farseer-go/fs/flog"
 	"github.com/farseer-go/fs/parse"
 	"github.com/farseer-go/fs/stopwatch"
-	"os"
 	"strings"
 	"time"
 )
@@ -25,10 +24,9 @@ type clientVO struct {
 }
 
 func NewClient() {
-	hostname, _ := os.Hostname()
 	defaultClient = &clientVO{
 		ClientId:   fs.AppId,
-		ClientName: hostname,
+		ClientName: fs.AppName,
 		ClientIp:   "",
 		ClientPort: 8888, // 先填写默认值
 		ClientJobs: collections.NewList[ClientJob](),
