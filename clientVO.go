@@ -13,6 +13,7 @@ import (
 )
 
 var defaultClient *clientVO
+var isRegistryJobCount int // 向调度中心注册的JOB数量
 
 // 客户端配置
 type clientVO struct {
@@ -76,7 +77,7 @@ type options func(opt *Option)
 
 // AddJob 客户端支持的任务
 func AddJob(isEnable bool, name, caption string, ver int, cron string, job JobFunc, ops ...options) {
-	// 说明没有启用调度中心
+	// 说明没有启用调度中心（没有依赖模块）
 	if defaultClient == nil {
 		return
 	}
@@ -115,6 +116,12 @@ func AddJob(isEnable bool, name, caption string, ver int, cron string, job JobFu
 		}
 		job(jobContext)
 	}
+
+	// 说明已经向调度中心注册过，之后又添加了新的任务
+	if isRegistryJobCount > 0 {
+		err := defaultClient.RegistryClient()
+		flog.ErrorIfExists(err)
+	}
 }
 
 // 转换成http head
@@ -136,6 +143,9 @@ func (receiver *clientVO) RegistryClient() error {
 	}
 	receiver.ClientIp = apiResponse.Data.ClientIp
 	receiver.ClientPort = apiResponse.Data.ClientPort
+
+	// 向调度中心注册的JOB数量
+	isRegistryJobCount = receiver.ClientJobs.Count()
 	return nil
 }
 

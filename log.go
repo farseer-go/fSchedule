@@ -28,6 +28,7 @@ type logContent struct {
 // enableReportLog 开启上传日志报告
 func enableReportLog() {
 	for {
+		<-timingWheel.Add(500 * time.Millisecond).C
 		lstLogs := collections.NewList[logContent]()
 		tw := timingWheel.Add(1 * time.Second)
 		isContinue := true // 标记是否一直循环读取，当大于1秒，或者取出10条日志时，上传日志
@@ -46,6 +47,5 @@ func enableReportLog() {
 			jsonByte, _ := json.Marshal(dto)
 			_, _ = defaultServer.logReport(jsonByte)
 		}
-		time.Sleep(500 * time.Millisecond)
 	}
 }
