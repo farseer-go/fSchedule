@@ -5,7 +5,7 @@ import (
 	"github.com/farseer-go/fs/exception"
 	"github.com/farseer-go/fs/flog"
 	"github.com/farseer-go/fs/stopwatch"
-	"github.com/farseer-go/fs/system"
+	"github.com/farseer-go/utils/system"
 )
 
 // ResourceVO 客户端资源情况
