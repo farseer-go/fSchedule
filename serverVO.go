@@ -2,8 +2,10 @@ package fSchedule
 
 import (
 	"github.com/farseer-go/collections"
+	"github.com/farseer-go/fs/container"
 	"github.com/farseer-go/fs/core"
 	"github.com/farseer-go/fs/flog"
+	"github.com/farseer-go/fs/trace"
 	"github.com/farseer-go/utils/http"
 	"math/rand"
 )
@@ -43,20 +45,30 @@ type RegistryResponse struct {
 
 // 服务端注册接口
 func (receiver *serverVO) registry(bodyJson []byte) (core.ApiResponse[RegistryResponse], error) {
+	traceContext := container.Resolve[trace.IManager]().EntryTask("向调度中心注册客户端")
+	defer traceContext.End()
+
 	address, _ := receiver.getAddress(-1)
 	var apiResponse core.ApiResponse[RegistryResponse]
-	_, err := http.NewClient(address+"/api/registry").HeadAdd(tokenName, receiver.Token).Body(bodyJson).Timeout(5000).PostUnmarshal(&apiResponse)
+	_, err := http.NewClient(address+"/api/registry").HeadAdd(tokenName, receiver.Token).Body(bodyJson).Timeout(500000).PostUnmarshal(&apiResponse)
 	if err != nil {
 		_ = flog.Errorf("客户端注册失败：%s", err.Error())
+		traceContext.Error(err)
 	}
+
 	return apiResponse, err
 }
 
 // 服务端下线接口
 func (receiver *serverVO) logout(bodyJson []byte) (core.ApiResponse[any], error) {
+	traceContext := container.Resolve[trace.IManager]().EntryTask("向调度中心注销客户端")
+	defer traceContext.End()
+
 	address, _ := receiver.getAddress(-1)
 	var apiResponse core.ApiResponse[any]
 	_, err := http.NewClient(address+"/api/logout").HeadAdd(tokenName, receiver.Token).Body(bodyJson).PostUnmarshal(&apiResponse)
+	traceContext.Error(err)
+
 	return apiResponse, err
 }
 

@@ -74,6 +74,7 @@ func (receiver *Job) Run() {
 	// 为了保证任务不被延迟，服务端会提前下发任务，需要客户端做休眠等待
 	<-timingWheel.AddTimePrecision(receiver.jobContext.StartAt).C
 
+	// 链路追踪
 	entryFSchedule := receiver.traceManager.EntryFSchedule(receiver.jobContext.Name, receiver.jobContext.TaskGroupId, receiver.jobContext.Id)
 	// 执行任务并拿到结果
 	exception.Try(func() {
