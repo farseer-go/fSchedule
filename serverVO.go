@@ -50,7 +50,7 @@ func (receiver *serverVO) registry(bodyJson []byte) (core.ApiResponse[RegistryRe
 
 	address, _ := receiver.getAddress(-1)
 	var apiResponse core.ApiResponse[RegistryResponse]
-	_, err := http.NewClient(address+"/api/registry").HeadAdd(tokenName, receiver.Token).Body(bodyJson).Timeout(500000).PostUnmarshal(&apiResponse)
+	_, err := http.NewClient(address+"/api/registry").HeadAdd(tokenName, receiver.Token).Body(bodyJson).Timeout(5000).PostUnmarshal(&apiResponse)
 	if err != nil {
 		_ = flog.Errorf("客户端注册失败：%s", err.Error())
 		traceContext.Error(err)
