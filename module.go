@@ -22,8 +22,8 @@ func (module Module) DependsModule() []modules.FarseerModule {
 func (module Module) PreInitialize() {
 	// 服务端配置
 	defaultServer = serverVO{
-		Address: configure.GetSlice("FSchedule.Server.Address"),
-		Token:   configure.GetString("FSchedule.Server.Token"),
+		Address: configure.GetSlice("FSchedule.ConsumerServer.Address"),
+		Token:   configure.GetString("FSchedule.ConsumerServer.Token"),
 	}
 
 	// 客户端配置
