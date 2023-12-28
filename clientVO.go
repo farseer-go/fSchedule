@@ -13,7 +13,7 @@ import (
 )
 
 var defaultClient *clientVO
-var isRegistryJobCount int // 向调度中心注册的JOB数量
+var isRegistry bool // 向调度中心注册
 
 // 客户端配置
 type clientVO struct {
@@ -118,7 +118,7 @@ func AddJob(isEnable bool, name, caption string, ver int, cron string, job JobFu
 	}
 
 	// 说明已经向调度中心注册过，之后又添加了新的任务
-	if isRegistryJobCount > 0 {
+	if isRegistry {
 		err := defaultClient.RegistryClient()
 		flog.ErrorIfExists(err)
 	}
@@ -145,7 +145,7 @@ func (receiver *clientVO) RegistryClient() error {
 	receiver.ClientPort = apiResponse.Data.ClientPort
 
 	// 向调度中心注册的JOB数量
-	isRegistryJobCount = receiver.ClientJobs.Count()
+	isRegistry = true
 	return nil
 }
 
