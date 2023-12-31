@@ -3,8 +3,8 @@ package fSchedule
 import (
 	"encoding/json"
 	"github.com/farseer-go/collections"
-	"github.com/farseer-go/fs"
 	"github.com/farseer-go/fs/configure"
+	"github.com/farseer-go/fs/core"
 	"github.com/farseer-go/fs/flog"
 	"github.com/farseer-go/fs/parse"
 	"github.com/farseer-go/fs/stopwatch"
@@ -26,16 +26,16 @@ type clientVO struct {
 
 func NewClient() {
 	defaultClient = &clientVO{
-		ClientId:   fs.AppId,
-		ClientName: fs.AppName,
+		ClientId:   core.AppId,
+		ClientName: core.AppName,
 		ClientIp:   "",
 		ClientPort: 8888, // 先填写默认值
 		ClientJobs: collections.NewList[ClientJob](),
 	}
 
 	// 优先使用本地IP
-	if strings.HasPrefix(fs.AppIp, "192.168.") || strings.HasPrefix(fs.AppIp, "172.20.") || strings.HasPrefix(fs.AppIp, "10.") {
-		defaultClient.ClientIp = fs.AppIp
+	if strings.HasPrefix(core.AppIp, "192.168.") || strings.HasPrefix(core.AppIp, "172.20.") || strings.HasPrefix(core.AppIp, "10.") {
+		defaultClient.ClientIp = core.AppIp
 	}
 
 	// 如果手动配置了客户端IP，则覆盖
