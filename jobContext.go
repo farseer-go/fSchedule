@@ -13,7 +13,6 @@ import (
 // JobContext 任务在运行时，更新状态
 type JobContext struct {
 	Id           int64                                  // 主键
-	TaskGroupId  int64                                  // 任务组ID
 	Ver          int                                    // 任务版本
 	Name         string                                 // 实现Job的特性名称（客户端识别哪个实现类）
 	Data         collections.Dictionary[string, string] // 数据
@@ -46,7 +45,6 @@ func (receiver *JobContext) report() bool {
 func (receiver *JobContext) getReport() TaskReportDTO {
 	return TaskReportDTO{
 		Id:           receiver.Id,
-		TaskGroupId:  receiver.TaskGroupId,
 		Name:         receiver.Name,
 		Ver:          receiver.Ver,
 		Data:         receiver.Data,
@@ -60,13 +58,12 @@ func (receiver *JobContext) getReport() TaskReportDTO {
 // log 记录日志
 func (receiver *JobContext) log(logLevel eumLogLevel.Enum, contents ...any) {
 	logQueue <- logContent{
-		TaskId:      receiver.Id,
-		TaskGroupId: receiver.TaskGroupId,
-		Name:        receiver.Name,
-		Ver:         receiver.Ver,
-		LogLevel:    logLevel,
-		CreateAt:    time.Now().UnixMilli(),
-		Content:     fmt.Sprint(contents...),
+		TaskId:   receiver.Id,
+		Name:     receiver.Name,
+		Ver:      receiver.Ver,
+		LogLevel: logLevel,
+		CreateAt: time.Now().UnixMilli(),
+		Content:  fmt.Sprint(contents...),
 	}
 }
 

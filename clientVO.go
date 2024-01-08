@@ -101,7 +101,6 @@ func AddJob(isEnable bool, name, caption string, ver int, cron string, job JobFu
 	if configure.GetBool("FSchedule.Debug.Enable") {
 		jobContext := &JobContext{
 			Id:           888,
-			TaskGroupId:  888,
 			Ver:          888,
 			Name:         name,
 			Data:         collections.NewDictionary[string, string](),

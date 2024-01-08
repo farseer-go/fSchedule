@@ -31,14 +31,13 @@ func invokeJob(task TaskEO) {
 		return item.Name == task.Name
 	}).First()
 
-	if task.Id == 0 || task.TaskGroupId == 0 || task.Name == "" || clientJob.Name == "" {
+	if task.Id == 0 || task.Name == "" || clientJob.Name == "" {
 		return
 	}
 	job := &Job{
 		ClientJob: clientJob,
 		jobContext: &JobContext{ // 构造上下文
 			Id:           task.Id,
-			TaskGroupId:  task.TaskGroupId,
 			Ver:          clientJob.Ver,
 			Name:         clientJob.Name,
 			Data:         task.Data,
@@ -68,14 +67,14 @@ func (receiver *Job) Run() {
 
 	taskStartAtSince := time.Since(receiver.jobContext.StartAt)
 	if taskStartAtSince.Microseconds() > 0 {
-		flog.Warningf("任务组：%s（%d） %d 延迟：%s", receiver.jobContext.Name, receiver.jobContext.TaskGroupId, receiver.jobContext.Id, taskStartAtSince.String())
+		flog.Warningf("任务组：%s %d 延迟：%s", receiver.jobContext.Name, receiver.jobContext.Id, taskStartAtSince.String())
 	}
 
 	// 为了保证任务不被延迟，服务端会提前下发任务，需要客户端做休眠等待
 	<-timingWheel.AddTimePrecision(receiver.jobContext.StartAt).C
 
 	// 链路追踪
-	entryFSchedule := receiver.traceManager.EntryFSchedule(receiver.jobContext.Name, receiver.jobContext.TaskGroupId, receiver.jobContext.Id)
+	entryFSchedule := receiver.traceManager.EntryFSchedule(receiver.jobContext.Name, receiver.jobContext.Id)
 	// 执行任务并拿到结果
 	exception.Try(func() {
 		receiver.jobContext.sw.Start()
@@ -90,7 +89,7 @@ func (receiver *Job) Run() {
 		entryFSchedule.Error(fmt.Errorf("%s", exp))
 	})
 	entryFSchedule.End()
-	flog.ComponentInfof("fSchedule", "任务：%s（%d） %d，耗时：%s，结果：%s", receiver.jobContext.Name, receiver.jobContext.TaskGroupId, receiver.jobContext.Id, receiver.jobContext.sw.GetMillisecondsText(), receiver.jobContext.status.String())
+	flog.ComponentInfof("fSchedule", "任务：%s %d，耗时：%s，结果：%s", receiver.jobContext.Name, receiver.jobContext.Id, receiver.jobContext.sw.GetMillisecondsText(), receiver.jobContext.status.String())
 }
 
 func getJob(taskId int64) *Job {
