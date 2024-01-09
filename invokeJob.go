@@ -86,6 +86,7 @@ func (receiver *Job) Run() {
 		}
 	}).CatchException(func(exp any) {
 		receiver.jobContext.status = Fail
+		receiver.jobContext.Error(exp)
 		entryFSchedule.Error(fmt.Errorf("%s", exp))
 	})
 	entryFSchedule.End()
