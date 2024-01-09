@@ -2,18 +2,22 @@ package fSchedule
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/farseer-go/collections"
 	"github.com/farseer-go/fs/configure"
 	"github.com/farseer-go/fs/core"
 	"github.com/farseer-go/fs/flog"
 	"github.com/farseer-go/fs/parse"
 	"github.com/farseer-go/fs/stopwatch"
+	"github.com/robfig/cron/v3"
 	"strings"
 	"time"
 )
 
 var defaultClient *clientVO
 var isRegistry bool // 向调度中心注册
+
+var StandardParser = cron.NewParser(cron.Second | cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow | cron.Descriptor)
 
 // 客户端配置
 type clientVO struct {
@@ -76,7 +80,12 @@ type Option struct {
 type options func(opt *Option)
 
 // AddJob 客户端支持的任务
-func AddJob(isEnable bool, name, caption string, ver int, cron string, job JobFunc, ops ...options) {
+func AddJob(isEnable bool, name, caption string, ver int, cronString string, job JobFunc, ops ...options) {
+	_, err := StandardParser.Parse(cronString)
+	if err != nil {
+		panic(fmt.Sprintf("任务组:%s %s，Cron格式[%s]错误:%s", name, caption, cronString, err.Error()))
+	}
+
 	// 说明没有启用调度中心（没有依赖模块）
 	if defaultClient == nil {
 		return
@@ -91,7 +100,7 @@ func AddJob(isEnable bool, name, caption string, ver int, cron string, job JobFu
 		IsEnable: isEnable,
 		Caption:  caption,
 		Ver:      ver,
-		Cron:     cron,
+		Cron:     cronString,
 		jobFunc:  job,
 		StartAt:  opt.StartAt,
 		Data:     opt.Data,

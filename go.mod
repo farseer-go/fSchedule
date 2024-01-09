@@ -7,6 +7,7 @@ require (
 	github.com/farseer-go/fs v0.12.0
 	github.com/farseer-go/utils v0.12.0
 	github.com/farseer-go/webapi v0.12.0
+	github.com/robfig/cron/v3 v3.0.1
 )
 
 require (
