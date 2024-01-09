@@ -41,15 +41,16 @@ func (module Module) PostInitialize() {
 		flog.Warning("FSchedule当前为调试状态，将模拟调用任务")
 		return
 	}
-	webapi.Area("/api/", func() {
+	builder := webapi.NewApplicationBuilder()
+	builder.Area("/api/", func() {
 		webapi.RegisterPOST("/check", Check)
 		webapi.RegisterPOST("/invoke", Invoke)
 		webapi.RegisterPOST("/status", Status)
 		webapi.RegisterPOST("/kill", Kill)
 	})
-	webapi.UseApiResponse()
-	webapi.UsePprof()
-	go webapi.Run(fmt.Sprintf("%s:%d", defaultClient.ClientIp, defaultClient.ClientPort))
+	builder.UseApiResponse()
+	builder.UsePprof()
+	go builder.Run(fmt.Sprintf("%s:%d", defaultClient.ClientIp, defaultClient.ClientPort))
 
 	fs.AddInitCallback("开启上传调度中心日志", func() {
 		go enableReportLog()
