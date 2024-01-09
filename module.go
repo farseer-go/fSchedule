@@ -43,13 +43,12 @@ func (module Module) PostInitialize() {
 	}
 	builder := webapi.NewApplicationBuilder()
 	builder.Area("/api/", func() {
-		webapi.RegisterPOST("/check", Check)
-		webapi.RegisterPOST("/invoke", Invoke)
-		webapi.RegisterPOST("/status", Status)
-		webapi.RegisterPOST("/kill", Kill)
+		builder.RegisterPOST("/check", Check)
+		builder.RegisterPOST("/invoke", Invoke)
+		builder.RegisterPOST("/status", Status)
+		builder.RegisterPOST("/kill", Kill)
 	})
 	builder.UseApiResponse()
-	builder.UsePprof()
 	go builder.Run(fmt.Sprintf("%s:%d", defaultClient.ClientIp, defaultClient.ClientPort))
 
 	fs.AddInitCallback("开启上传调度中心日志", func() {
