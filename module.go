@@ -55,6 +55,10 @@ func (module Module) PostInitialize() {
 		go enableReportLog()
 	})
 
+	fs.AddInitCallback("开启定时上传任务，防止掉线", func() {
+		go RegistryJob()
+	})
+
 	// 注册健康检查
 	container.RegisterInstance[core.IHealthCheck](&healthCheck{}, "fSchedule")
 }
