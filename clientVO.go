@@ -127,8 +127,7 @@ func AddJob(isEnable bool, name, caption string, ver int, cronString string, job
 
 	// 说明已经向调度中心注册过，之后又添加了新的任务
 	if isRegistry {
-		err := defaultClient.RegistryClient()
-		flog.ErrorIfExists(err)
+		registerNotify <- struct{}{}
 	}
 }
 
