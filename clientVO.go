@@ -15,7 +15,6 @@ import (
 )
 
 var defaultClient *clientVO
-var isRegistry bool // 向调度中心注册
 
 var StandardParser = cron.NewParser(cron.Second | cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow | cron.Descriptor)
 
@@ -129,10 +128,8 @@ func AddJob(isEnable bool, name, caption string, ver int, cronString string, job
 		job(jobContext)
 	}
 
-	// 说明已经向调度中心注册过，之后又添加了新的任务
-	if isRegistry {
-		registerNotify <- struct{}{}
-	}
+	// 通知有新的JOB
+	registerNotify <- struct{}{}
 }
 
 // 转换成http head
@@ -156,7 +153,6 @@ func (receiver *clientVO) RegistryClient() error {
 	receiver.ClientPort = apiResponse.Data.ClientPort
 
 	// 向调度中心注册的JOB数量
-	isRegistry = true
 	return nil
 }
 

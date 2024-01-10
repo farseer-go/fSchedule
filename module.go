@@ -55,7 +55,7 @@ func (module Module) PostInitialize() {
 		go enableReportLog()
 	})
 
-	fs.AddInitCallback("开启定时上传任务，防止掉线", func() {
+	fs.AddInitCallback("开启定时注册客户端，防止掉线", func() {
 		go RegistryJob()
 	})
 

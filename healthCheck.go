@@ -9,6 +9,9 @@ type healthCheck struct {
 }
 
 func (c *healthCheck) Check() (string, error) {
+	if defaultClient.ClientJobs.Count() ==0 {
+		return "FSchedule." + strings.Join(defaultServer.Address, ",") + " 启动时没有任务，跳过检查", nil
+	}
 	err := defaultClient.RegistryClient()
 	var tips string
 	if err == nil {
