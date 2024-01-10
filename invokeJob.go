@@ -62,11 +62,17 @@ func invokeJob(task TaskEO) {
 }
 
 func (receiver *Job) Run() {
+	// 链路追踪
+	entryFSchedule := receiver.traceManager.EntryFSchedule(receiver.jobContext.Name, receiver.jobContext.Id, receiver.jobContext.Data.ToMap())
 	defer func() {
 		if receiver.jobContext.report() {
 			lock.Lock()
 			jobList.Remove(receiver.jobContext.Id)
 			lock.Unlock()
+		}
+
+		if entryFSchedule != nil {
+			entryFSchedule.End()
 		}
 	}()
 
@@ -74,12 +80,13 @@ func (receiver *Job) Run() {
 	if taskStartAtSince.Microseconds() > 0 {
 		flog.Warningf("任务组：%s %d 延迟：%s", receiver.jobContext.Name, receiver.jobContext.Id, taskStartAtSince.String())
 	}
+	if receiver.jobContext.StartAt.After(time.Now()) {
+		traceHand := receiver.traceManager.TraceHand("休眠等待")
+		// 为了保证任务不被延迟，服务端会提前下发任务，需要客户端做休眠等待
+		<-timingWheel.AddTimePrecision(receiver.jobContext.StartAt).C
+		traceHand.End(nil)
+	}
 
-	// 为了保证任务不被延迟，服务端会提前下发任务，需要客户端做休眠等待
-	<-timingWheel.AddTimePrecision(receiver.jobContext.StartAt).C
-
-	// 链路追踪
-	entryFSchedule := receiver.traceManager.EntryFSchedule(receiver.jobContext.Name, receiver.jobContext.Id, receiver.jobContext.Data.ToMap())
 	// 执行任务并拿到结果
 	exception.Try(func() {
 		receiver.jobContext.sw.Start()
@@ -94,8 +101,6 @@ func (receiver *Job) Run() {
 		receiver.jobContext.Error(exp)
 		entryFSchedule.Error(fmt.Errorf("%s", exp))
 	})
-	entryFSchedule.End()
-	flog.ComponentInfof("fSchedule", "任务：%s %d，耗时：%s，结果：%s", receiver.jobContext.Name, receiver.jobContext.Id, receiver.jobContext.sw.GetMillisecondsText(), receiver.jobContext.status.String())
 }
 
 func getJob(taskId int64) *Job {
