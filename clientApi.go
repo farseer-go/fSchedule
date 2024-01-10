@@ -4,7 +4,6 @@ import (
 	"github.com/farseer-go/collections"
 	"github.com/farseer-go/fs/exception"
 	"github.com/farseer-go/fs/flog"
-	"github.com/farseer-go/fs/stopwatch"
 	"github.com/farseer-go/utils/system"
 )
 
@@ -29,11 +28,7 @@ func Check(clientId int64) ResourceVO {
 
 // Invoke 下发任务
 func Invoke(task TaskEO) ResourceVO {
-	sw := stopwatch.StartNew()
 	invokeJob(task)
-	if sw.ElapsedMilliseconds() > 0 {
-		flog.Infof("Invoke %s %d，%s", task.Name, task.Id, sw.GetMicrosecondsText())
-	}
 	return getResource()
 }
 

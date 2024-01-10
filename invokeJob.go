@@ -27,19 +27,24 @@ type Job struct {
 
 // 接受来自服务端的任务
 func invokeJob(task TaskEO) {
+	if task.Id == 0 || task.Name == "" {
+		return
+	}
+
 	clientJob := defaultClient.ClientJobs.Where(func(item ClientJob) bool {
 		return item.Name == task.Name
 	}).First()
 
-	if task.Id == 0 || task.Name == "" || clientJob.Name == "" {
+	if clientJob.IsNil() {
 		return
 	}
+
 	job := &Job{
 		ClientJob: clientJob,
 		jobContext: &JobContext{ // 构造上下文
 			Id:           task.Id,
 			Ver:          clientJob.Ver,
-			Name:         clientJob.Name,
+			Name:         task.Name,
 			Data:         task.Data,
 			StartAt:      task.StartAt,
 			nextTimespan: 0,
@@ -74,7 +79,7 @@ func (receiver *Job) Run() {
 	<-timingWheel.AddTimePrecision(receiver.jobContext.StartAt).C
 
 	// 链路追踪
-	entryFSchedule := receiver.traceManager.EntryFSchedule(receiver.jobContext.Name, receiver.jobContext.Id)
+	entryFSchedule := receiver.traceManager.EntryFSchedule(receiver.jobContext.Name, receiver.jobContext.Id, receiver.jobContext.Data.ToMap())
 	// 执行任务并拿到结果
 	exception.Try(func() {
 		receiver.jobContext.sw.Start()

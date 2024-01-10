@@ -69,6 +69,10 @@ type ClientJob struct {
 	jobFunc  JobFunc
 }
 
+func (receiver *ClientJob) IsNil() bool {
+	return receiver.Name == ""
+}
+
 func GetClient() *clientVO {
 	return defaultClient
 }
