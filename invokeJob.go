@@ -81,10 +81,8 @@ func (receiver *Job) Run() {
 		flog.Warningf("任务组：%s %d 延迟：%s", receiver.jobContext.Name, receiver.jobContext.Id, taskStartAtSince.String())
 	}
 	if receiver.jobContext.StartAt.After(time.Now()) {
-		traceHand := receiver.traceManager.TraceHand("休眠等待")
 		// 为了保证任务不被延迟，服务端会提前下发任务，需要客户端做休眠等待
 		<-timingWheel.AddTimePrecision(receiver.jobContext.StartAt).C
-		traceHand.End(nil)
 	}
 
 	// 执行任务并拿到结果
