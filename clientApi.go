@@ -54,7 +54,7 @@ func Kill(TaskId int64) {
 func getResource() ResourceVO {
 	resource := system.GetResource()
 	return ResourceVO{
-		QueueCount:    defaultClient.QueueCount,
+		QueueCount:    jobList.Count() - defaultClient.WorkCount,
 		WorkCount:     defaultClient.WorkCount,
 		CpuUsage:      resource.CpuUsagePercent,
 		MemoryUsage:   resource.MemoryUsagePercent,
