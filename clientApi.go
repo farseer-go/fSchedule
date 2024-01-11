@@ -21,7 +21,7 @@ func Check(clientId int64) ResourceVO {
 	v := getResource()
 	flog.Infof("收到调度中心的存活检查： %+v", v)
 	if clientId != defaultClient.ClientId {
-		exception.ThrowWebException(403, "客户端ID不一致")
+		exception.ThrowWebExceptionf(403, "客户端ID不一致，当前clientId：%d，接收到的是：%d", defaultClient.ClientId, clientId)
 	}
 	return v
 }
