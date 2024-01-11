@@ -148,7 +148,7 @@ func (receiver *clientVO) RegistryClient() error {
 	jsonByte, _ := json.Marshal(receiver)
 	apiResponse, _ := defaultServer.registry(jsonByte)
 	if apiResponse.StatusCode != 200 {
-		return flog.Errorf("注册失败：%d %s", apiResponse.StatusCode, apiResponse.StatusMessage)
+		return flog.Errorf("注册调度中心失败：%d %s", apiResponse.StatusCode, apiResponse.StatusMessage)
 	}
 	receiver.ClientIp = apiResponse.Data.ClientIp
 	receiver.ClientPort = apiResponse.Data.ClientPort
