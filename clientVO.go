@@ -25,6 +25,8 @@ type clientVO struct {
 	ClientIp   string                      // 客户端IP
 	ClientPort int                         // 客户端端口
 	ClientJobs collections.List[ClientJob] // 客户端动态注册任务
+	QueueCount int                         // 排队中的任务数量
+	WorkCount  int                         // 正在处理的任务数量
 }
 
 func NewClient() {

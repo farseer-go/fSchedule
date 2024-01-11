@@ -39,6 +39,9 @@ func invokeJob(task TaskEO) {
 		return
 	}
 
+	// 排队任务+1
+	defaultClient.QueueCount++
+
 	job := &Job{
 		ClientJob: clientJob,
 		jobContext: &JobContext{ // 构造上下文
@@ -74,6 +77,8 @@ func (receiver *Job) Run() {
 		if entryFSchedule != nil {
 			entryFSchedule.End()
 		}
+		// 工作中任务-1
+		defaultClient.WorkCount--
 	}()
 
 	taskStartAtSince := time.Since(receiver.jobContext.StartAt)
@@ -85,6 +90,10 @@ func (receiver *Job) Run() {
 		<-timingWheel.AddTimePrecision(receiver.jobContext.StartAt).C
 	}
 
+	// 排队任务-1
+	defaultClient.QueueCount--
+	// 工作中任务+1
+	defaultClient.WorkCount++
 	// 执行任务并拿到结果
 	exception.Try(func() {
 		receiver.jobContext.sw.Start()
