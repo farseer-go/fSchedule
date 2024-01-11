@@ -9,7 +9,7 @@ type healthCheck struct {
 }
 
 func (c *healthCheck) Check() (string, error) {
-	if defaultClient.ClientJobs.Count() ==0 {
+	if defaultClient.ClientJobs.Count() == 0 {
 		return "FSchedule." + strings.Join(defaultServer.Address, ",") + " 启动时没有任务，跳过检查", nil
 	}
 	err := defaultClient.RegistryClient()
@@ -19,6 +19,7 @@ func (c *healthCheck) Check() (string, error) {
 	} else {
 		tips = fmt.Sprintf("客户端(%d) %s:%d ", defaultClient.ClientId, defaultClient.ClientIp, defaultClient.ClientPort)
 	}
+	err = nil
 
 	return "FSchedule." + strings.Join(defaultServer.Address, ",") + " " + tips, err
 }

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/farseer-go/fs"
 	"github.com/farseer-go/fs/configure"
+	"github.com/farseer-go/fs/container"
+	"github.com/farseer-go/fs/core"
 	"github.com/farseer-go/fs/flog"
 	"github.com/farseer-go/fs/modules"
 	"github.com/farseer-go/fs/timingWheel"
@@ -58,7 +60,7 @@ func (module Module) PostInitialize() {
 	})
 
 	// 注册健康检查
-	//container.RegisterInstance[core.IHealthCheck](&healthCheck{}, "fSchedule")
+	container.RegisterInstance[core.IHealthCheck](&healthCheck{}, "fSchedule")
 }
 
 func (module Module) Shutdown() {
