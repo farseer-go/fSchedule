@@ -19,7 +19,7 @@ type ResourceVO struct {
 // Check 检查客户端存活
 func Check(clientId int64) ResourceVO {
 	v := getResource()
-	flog.Infof("收到调度中心的存活检查： %+v", v)
+	flog.Debugf("收到调度中心的存活检查： %+v", v)
 	if clientId != defaultClient.ClientId {
 		exception.ThrowWebExceptionf(403, "客户端ID不一致，当前clientId：%d，接收到的是：%d", defaultClient.ClientId, clientId)
 	}
