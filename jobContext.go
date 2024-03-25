@@ -1,6 +1,7 @@
 package fSchedule
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/farseer-go/collections"
@@ -21,6 +22,8 @@ type JobContext struct {
 	status       TaskStatus                             // 执行状态
 	sw           *stopwatch.Watch                       // 运行时间
 	StartAt      time.Time                              // 任务开始时间
+	cancel       context.CancelFunc                     // 服务端通知Kill时，将调用此函数
+	Ctx          context.Context                        // 客户端执行时，需要检查ctx是否被Cancel
 }
 
 // SetNextAt 设置下次运行时间

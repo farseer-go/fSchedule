@@ -1,6 +1,7 @@
 package fSchedule
 
 import (
+	"context"
 	"fmt"
 	"github.com/farseer-go/collections"
 	"github.com/farseer-go/fs/container"
@@ -38,6 +39,7 @@ func invokeJob(task TaskEO) {
 	if clientJob.IsNil() {
 		return
 	}
+	ctx, cancel := context.WithCancel(context.Background())
 
 	job := &Job{
 		ClientJob: clientJob,
@@ -51,6 +53,8 @@ func invokeJob(task TaskEO) {
 			progress:     0,
 			status:       Working,
 			sw:           stopwatch.New(),
+			Ctx:          ctx,
+			cancel:       cancel,
 		},
 		traceManager: container.Resolve[trace.IManager](),
 	}
@@ -65,6 +69,8 @@ func (receiver *Job) Run() {
 	// 链路追踪
 	entryFSchedule := receiver.traceManager.EntryFSchedule(receiver.jobContext.Name, receiver.jobContext.Id, receiver.jobContext.Data.ToMap())
 	defer func() {
+		// 任务报告完后，移除本次任务
+		// todo 没有移除，报告失败怎么办？
 		if receiver.jobContext.report() {
 			lock.Lock()
 			jobList.Remove(receiver.jobContext.Id)

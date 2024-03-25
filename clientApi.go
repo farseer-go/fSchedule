@@ -45,9 +45,14 @@ func Status(TaskId int64) TaskReportDTO {
 }
 
 // Kill 终止任务
-func Kill(TaskId int64) {
-	// 如果任务无法停止，调用这个异常即可
-	exception.ThrowWebException(403, "无法停止任务")
+func Kill(taskId int64) {
+	job := getJob(taskId)
+	if job == nil {
+		// 如果任务无法停止，调用这个异常即可
+		exception.ThrowWebException(403, "无法停止任务")
+	}
+	// 通知取消任务
+	job.jobContext.cancel()
 }
 
 // 获取当前客户端的环境信息
