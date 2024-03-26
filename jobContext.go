@@ -16,6 +16,7 @@ type JobContext struct {
 	Id           int64                                  // 主键
 	Ver          int                                    // 任务版本
 	Name         string                                 // 实现Job的特性名称（客户端识别哪个实现类）
+	Caption      string                                 // 任务标题
 	Data         collections.Dictionary[string, string] // 数据
 	nextTimespan int64                                  // 下次执行时间
 	progress     int                                    // 当前进度
@@ -64,6 +65,8 @@ func (receiver *JobContext) log(logLevel eumLogLevel.Enum, contents ...any) {
 		TaskId:   receiver.Id,
 		Name:     receiver.Name,
 		Ver:      receiver.Ver,
+		Caption:  receiver.Caption,
+		Data:     receiver.Data,
 		LogLevel: logLevel,
 		CreateAt: time.Now().UnixMilli(),
 		Content:  fmt.Sprint(contents...),

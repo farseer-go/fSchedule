@@ -1,3 +1,4 @@
+// @area /api/
 package fSchedule
 
 import (
@@ -17,6 +18,7 @@ type ResourceVO struct {
 }
 
 // Check 检查客户端存活
+// @post check
 func Check(clientId int64) ResourceVO {
 	v := getResource()
 	flog.Debugf("收到调度中心的存活检查： %+v", v)
@@ -27,12 +29,14 @@ func Check(clientId int64) ResourceVO {
 }
 
 // Invoke 下发任务
+// @post invoke
 func Invoke(task TaskEO) ResourceVO {
 	invokeJob(task)
 	return getResource()
 }
 
 // Status 查询任务状态
+// @post status
 func Status(TaskId int64) TaskReportDTO {
 	job := getJob(TaskId)
 	if job == nil {
@@ -45,6 +49,7 @@ func Status(TaskId int64) TaskReportDTO {
 }
 
 // Kill 终止任务
+// @post kill
 func Kill(taskId int64) {
 	job := getJob(taskId)
 	if job == nil {

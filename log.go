@@ -16,9 +16,11 @@ type logReportDTO struct {
 }
 
 type logContent struct {
-	TaskId   int64  // 主键
-	Name     string // 实现Job的特性名称（客户端识别哪个实现类）
-	Ver      int    // 版本
+	TaskId   int64                                  // 主键
+	Ver      int                                    // 版本
+	Name     string                                 // 实现Job的特性名称（客户端识别哪个实现类）
+	Caption  string                                 // 任务标题
+	Data     collections.Dictionary[string, string] // 本次执行任务时的Data数据
 	LogLevel eumLogLevel.Enum
 	CreateAt int64
 	Content  string
@@ -27,7 +29,7 @@ type logContent struct {
 // enableReportLog 开启上传日志报告
 func enableReportLog() {
 	for {
-		<-timingWheel.Add(500 * time.Millisecond).C
+		<-timingWheel.Add(5 * time.Second).C
 		lstLogs := collections.NewList[logContent]()
 		tw := timingWheel.Add(1 * time.Second)
 		isContinue := true // 标记是否一直循环读取，当大于1秒，或者取出10条日志时，上传日志

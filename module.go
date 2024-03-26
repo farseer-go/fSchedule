@@ -42,12 +42,7 @@ func (module Module) PostInitialize() {
 		return
 	}
 	builder := webapi.NewApplicationBuilder()
-	builder.Area("/api/", func() {
-		builder.RegisterPOST("/check", Check)
-		builder.RegisterPOST("/invoke", Invoke)
-		builder.RegisterPOST("/status", Status)
-		builder.RegisterPOST("/kill", Kill)
-	})
+	builder.RegisterRoutes(route...)
 	builder.UseApiResponse()
 	go builder.Run(fmt.Sprintf("%s:%d", defaultClient.ClientIp, defaultClient.ClientPort))
 

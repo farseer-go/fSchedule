@@ -117,6 +117,7 @@ func AddJob(isEnable bool, name, caption string, ver int, cronString string, job
 			Ver:          888,
 			Name:         name,
 			Data:         collections.NewDictionary[string, string](),
+			Caption:      caption,
 			nextTimespan: 0,
 			progress:     0,
 			status:       Working,

@@ -48,6 +48,7 @@ func invokeJob(task TaskEO) {
 			Ver:          clientJob.Ver,
 			Name:         task.Name,
 			Data:         task.Data,
+			Caption:      task.Caption,
 			StartAt:      task.StartAt,
 			nextTimespan: 0,
 			progress:     0,
