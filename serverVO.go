@@ -2,6 +2,7 @@ package fSchedule
 
 import (
 	"github.com/farseer-go/collections"
+	"github.com/farseer-go/fSchedule/executeStatus"
 	"github.com/farseer-go/fs/container"
 	"github.com/farseer-go/fs/core"
 	"github.com/farseer-go/fs/flog"
@@ -79,7 +80,7 @@ type TaskReportDTO struct {
 	Data         collections.Dictionary[string, string] // 数据
 	NextTimespan int64                                  // 下次执行时间
 	Progress     int                                    // 当前进度
-	Status       TaskStatus                             // 执行状态
+	Status       executeStatus.Enum                     // 执行状态
 	RunSpeed     int64                                  // 执行速度
 }
 

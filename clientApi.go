@@ -3,6 +3,7 @@ package fSchedule
 
 import (
 	"github.com/farseer-go/collections"
+	"github.com/farseer-go/fSchedule/executeStatus"
 	"github.com/farseer-go/fs/exception"
 	"github.com/farseer-go/fs/flog"
 	"github.com/farseer-go/utils/system"
@@ -42,7 +43,7 @@ func Status(TaskId int64) TaskReportDTO {
 	if job == nil {
 		return TaskReportDTO{
 			Data:   collections.Dictionary[string, string]{},
-			Status: Fail,
+			Status: executeStatus.Fail,
 		}
 	}
 	return job.jobContext.getReport()

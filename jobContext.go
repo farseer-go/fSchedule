@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/farseer-go/collections"
+	"github.com/farseer-go/fSchedule/executeStatus"
 	"github.com/farseer-go/fs/core/eumLogLevel"
 	"github.com/farseer-go/fs/flog"
 	"github.com/farseer-go/fs/stopwatch"
@@ -20,7 +21,7 @@ type JobContext struct {
 	Data         collections.Dictionary[string, string] // 数据
 	nextTimespan int64                                  // 下次执行时间
 	progress     int                                    // 当前进度
-	status       TaskStatus                             // 执行状态
+	status       executeStatus.Enum                     // 执行状态
 	sw           *stopwatch.Watch                       // 运行时间
 	StartAt      time.Time                              // 任务开始时间
 	cancel       context.CancelFunc                     // 服务端通知Kill时，将调用此函数

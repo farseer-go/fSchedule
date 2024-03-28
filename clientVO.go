@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/farseer-go/collections"
+	"github.com/farseer-go/fSchedule/executeStatus"
 	"github.com/farseer-go/fs/configure"
 	"github.com/farseer-go/fs/core"
 	"github.com/farseer-go/fs/flog"
@@ -120,7 +121,7 @@ func AddJob(isEnable bool, name, caption string, ver int, cronString string, job
 			Caption:      caption,
 			nextTimespan: 0,
 			progress:     0,
-			status:       Working,
+			status:       executeStatus.Working,
 			sw:           stopwatch.New(),
 			StartAt:      time.Now(),
 		}
