@@ -9,7 +9,6 @@ import (
 	"github.com/farseer-go/fs/core"
 	"github.com/farseer-go/fs/flog"
 	"github.com/farseer-go/fs/parse"
-	"github.com/farseer-go/fs/stopwatch"
 	"github.com/robfig/cron/v3"
 	"strings"
 	"time"
@@ -122,7 +121,6 @@ func AddJob(isEnable bool, name, caption string, ver int, cronString string, job
 			nextTimespan: 0,
 			progress:     0,
 			status:       executeStatus.Working,
-			sw:           stopwatch.New(),
 			StartAt:      time.Now(),
 		}
 		for k, v := range configure.GetSubNodes("FSchedule.Debug." + name) {

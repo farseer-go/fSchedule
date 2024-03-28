@@ -7,7 +7,6 @@ import (
 	"github.com/farseer-go/collections"
 	"github.com/farseer-go/fSchedule/executeStatus"
 	"github.com/farseer-go/fs/core/eumLogLevel"
-	"github.com/farseer-go/fs/stopwatch"
 	"time"
 )
 
@@ -21,7 +20,6 @@ type JobContext struct {
 	nextTimespan int64                                  // 下次执行时间
 	progress     int                                    // 当前进度
 	status       executeStatus.Enum                     // 执行状态
-	sw           *stopwatch.Watch                       // 运行时间
 	StartAt      time.Time                              // 任务开始时间
 	failRemark   string                                 // 失败原因
 	cancel       context.CancelFunc                     // 服务端通知Kill时，将调用此函数
@@ -57,7 +55,6 @@ func (receiver *JobContext) getReport() TaskReportDTO {
 		Progress:     receiver.progress,
 		Status:       receiver.status,
 		FailRemark:   receiver.failRemark,
-		RunSpeed:     receiver.sw.ElapsedMilliseconds(),
 		ResourceVO:   getResource(),
 	}
 }

@@ -8,7 +8,6 @@ import (
 	"github.com/farseer-go/fs/container"
 	"github.com/farseer-go/fs/exception"
 	"github.com/farseer-go/fs/flog"
-	"github.com/farseer-go/fs/stopwatch"
 	"github.com/farseer-go/fs/timingWheel"
 	"github.com/farseer-go/fs/trace"
 	"sync"
@@ -54,7 +53,6 @@ func invokeJob(task TaskEO) {
 			nextTimespan: 0,
 			progress:     0,
 			status:       executeStatus.Working,
-			sw:           stopwatch.New(),
 			Ctx:          ctx,
 			cancel:       cancel,
 		},
@@ -101,8 +99,6 @@ func (receiver *Job) Run() {
 	exception.Try(func() {
 		// 通知调度中心，我开始执行了
 		receiver.jobContext.report()
-
-		receiver.jobContext.sw.Start()
 		// 执行任务
 		if receiver.ClientJob.jobFunc(receiver.jobContext) {
 			receiver.jobContext.status = executeStatus.Success
