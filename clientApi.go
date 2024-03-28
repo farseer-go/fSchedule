@@ -42,8 +42,9 @@ func Status(TaskId int64) TaskReportDTO {
 	job := getJob(TaskId)
 	if job == nil {
 		return TaskReportDTO{
-			Data:   collections.Dictionary[string, string]{},
-			Status: executeStatus.Fail,
+			Data:       collections.Dictionary[string, string]{},
+			Status:     executeStatus.Fail,
+			ResourceVO: getResource(),
 		}
 	}
 	return job.jobContext.getReport()

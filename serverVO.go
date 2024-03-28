@@ -82,6 +82,7 @@ type TaskReportDTO struct {
 	Progress     int                                    // 当前进度
 	Status       executeStatus.Enum                     // 执行状态
 	RunSpeed     int64                                  // 执行速度
+	ResourceVO
 }
 
 // 客户端回调

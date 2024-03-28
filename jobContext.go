@@ -57,6 +57,7 @@ func (receiver *JobContext) getReport() TaskReportDTO {
 		Progress:     receiver.progress,
 		Status:       receiver.status,
 		RunSpeed:     receiver.sw.ElapsedMilliseconds(),
+		ResourceVO:   getResource(),
 	}
 }
 
