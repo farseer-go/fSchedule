@@ -7,7 +7,6 @@ import (
 	"github.com/farseer-go/collections"
 	"github.com/farseer-go/fSchedule/executeStatus"
 	"github.com/farseer-go/fs/core/eumLogLevel"
-	"github.com/farseer-go/fs/flog"
 	"github.com/farseer-go/fs/stopwatch"
 	"time"
 )
@@ -85,71 +84,71 @@ func (receiver *JobContext) log(logLevel eumLogLevel.Enum, contents ...any) {
 // Trace 打印Trace日志
 func (receiver *JobContext) Trace(contents ...any) {
 	receiver.log(eumLogLevel.Trace, contents...)
-	flog.Tracef("任务组 %s %d：%s", receiver.Name, receiver.Id, fmt.Sprint(contents...))
+	//flog.Tracef("任务组 %s %d：%s", receiver.Name, receiver.Id, fmt.Sprint(contents...))
 }
 
 // Tracef 打印Trace日志
 func (receiver *JobContext) Tracef(format string, a ...any) {
 	receiver.log(eumLogLevel.Trace, fmt.Sprintf(format, a...))
-	flog.Tracef("任务组 %s %d：%s", receiver.Name, receiver.Id, fmt.Sprintf(format, a...))
+	//flog.Tracef("任务组 %s %d：%s", receiver.Name, receiver.Id, fmt.Sprintf(format, a...))
 }
 
 // Debug 打印Debug日志
 func (receiver *JobContext) Debug(contents ...any) {
 	receiver.log(eumLogLevel.Debug, contents...)
-	flog.Debugf("任务组 %s %d：%s", receiver.Name, receiver.Id, fmt.Sprint(contents...))
+	//flog.Debugf("任务组 %s %d：%s", receiver.Name, receiver.Id, fmt.Sprint(contents...))
 }
 
 // Debugf 打印Debug日志
 func (receiver *JobContext) Debugf(format string, a ...any) {
 	receiver.log(eumLogLevel.Debug, fmt.Sprintf(format, a...))
-	flog.Debugf("任务组 %s %d：%s", receiver.Name, receiver.Id, fmt.Sprintf(format, a...))
+	//flog.Debugf("任务组 %s %d：%s", receiver.Name, receiver.Id, fmt.Sprintf(format, a...))
 }
 
 // Info 打印Info日志
 func (receiver *JobContext) Info(contents ...any) {
 	receiver.log(eumLogLevel.Information, contents...)
-	flog.Infof("任务组 %s %d：%s", receiver.Name, receiver.Id, fmt.Sprint(contents...))
+	//flog.Infof("任务组 %s %d：%s", receiver.Name, receiver.Id, fmt.Sprint(contents...))
 }
 
 // Infof 打印Info日志
 func (receiver *JobContext) Infof(format string, a ...any) {
 	receiver.log(eumLogLevel.Information, fmt.Sprintf(format, a...))
-	flog.Infof("任务组 %s %d：%s", receiver.Name, receiver.Id, fmt.Sprintf(format, a...))
+	//flog.Infof("任务组 %s %d：%s", receiver.Name, receiver.Id, fmt.Sprintf(format, a...))
 }
 
 // Warning 打印Warning日志
 func (receiver *JobContext) Warning(contents ...any) {
 	receiver.log(eumLogLevel.Warning, contents...)
-	flog.Warningf("任务组 %s %d：%s", receiver.Name, receiver.Id, fmt.Sprint(contents...))
+	//flog.Warningf("任务组 %s %d：%s", receiver.Name, receiver.Id, fmt.Sprint(contents...))
 }
 
 // Warningf 打印Warning日志
 func (receiver *JobContext) Warningf(format string, a ...any) {
 	receiver.log(eumLogLevel.Warning, fmt.Sprintf(format, a...))
-	flog.Warningf("任务组 %s %d：%s", receiver.Name, receiver.Id, fmt.Sprintf(format, a...))
+	//flog.Warningf("任务组 %s %d：%s", receiver.Name, receiver.Id, fmt.Sprintf(format, a...))
 }
 
 // Error 打印Error日志
 func (receiver *JobContext) Error(contents ...any) {
 	receiver.log(eumLogLevel.Error, contents...)
-	_ = flog.Errorf("任务组 %s %d：%s", receiver.Name, receiver.Id, fmt.Sprint(contents...))
+	//_ = flog.Errorf("任务组 %s %d：%s", receiver.Name, receiver.Id, fmt.Sprint(contents...))
 }
 
 // Errorf 打印Error日志
 func (receiver *JobContext) Errorf(format string, a ...any) {
 	receiver.log(eumLogLevel.Error, fmt.Sprintf(format, a...))
-	_ = flog.Errorf("任务组 %s %d：%s", receiver.Name, receiver.Id, fmt.Sprintf(format, a...))
+	//_ = flog.Errorf("任务组 %s %d：%s", receiver.Name, receiver.Id, fmt.Sprintf(format, a...))
 }
 
 // Critical 打印Critical日志
 func (receiver *JobContext) Critical(contents ...any) {
 	receiver.log(eumLogLevel.Critical, contents...)
-	flog.Criticalf("任务组 %s %d：%s", receiver.Name, receiver.Id, fmt.Sprint(contents...))
+	//flog.Criticalf("任务组 %s %d：%s", receiver.Name, receiver.Id, fmt.Sprint(contents...))
 }
 
 // Criticalf 打印Critical日志
 func (receiver *JobContext) Criticalf(format string, a ...any) {
 	receiver.log(eumLogLevel.Critical, fmt.Sprintf(format, a...))
-	flog.Criticalf("任务组 %s %d：%s", receiver.Name, receiver.Id, fmt.Sprintf(format, a...))
+	//flog.Criticalf("任务组 %s %d：%s", receiver.Name, receiver.Id, fmt.Sprintf(format, a...))
 }
