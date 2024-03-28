@@ -24,6 +24,7 @@ type JobContext struct {
 	status       executeStatus.Enum                     // 执行状态
 	sw           *stopwatch.Watch                       // 运行时间
 	StartAt      time.Time                              // 任务开始时间
+	failRemark   string                                 // 失败原因
 	cancel       context.CancelFunc                     // 服务端通知Kill时，将调用此函数
 	Ctx          context.Context                        // 客户端执行时，需要检查ctx是否被Cancel
 }
@@ -56,9 +57,15 @@ func (receiver *JobContext) getReport() TaskReportDTO {
 		NextTimespan: receiver.nextTimespan,
 		Progress:     receiver.progress,
 		Status:       receiver.status,
+		FailRemark:   receiver.failRemark,
 		RunSpeed:     receiver.sw.ElapsedMilliseconds(),
 		ResourceVO:   getResource(),
 	}
+}
+
+// Remark 报告失败原因
+func (receiver *JobContext) Remark(format string, a ...any) {
+	receiver.failRemark = fmt.Sprintf(format, a...)
 }
 
 // log 记录日志

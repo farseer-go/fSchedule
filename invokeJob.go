@@ -72,7 +72,7 @@ func (receiver *Job) Run() {
 	entryFSchedule := receiver.traceManager.EntryFSchedule(receiver.jobContext.Name, receiver.jobContext.Id, receiver.jobContext.Data.ToMap())
 	defer func() {
 		// 任务报告完后，移除本次任务
-		// todo 没有移除，报告失败怎么办？
+		//todo 没有移除，报告失败怎么办？
 		if receiver.jobContext.report() {
 			lock.Lock()
 			jobList.Remove(receiver.jobContext.Id)
