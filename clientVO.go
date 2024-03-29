@@ -146,9 +146,12 @@ func (receiver *clientVO) getHttpHead() map[string]any {
 // RegistryClient 注册客户端
 func (receiver *clientVO) RegistryClient() error {
 	jsonByte, _ := json.Marshal(receiver)
-	apiResponse, _ := defaultServer.registry(jsonByte)
+	apiResponse, err := defaultServer.registry(jsonByte)
+	if err != nil {
+		return err
+	}
 	if apiResponse.StatusCode != 200 {
-		return flog.Errorf("注册调度中心失败：%d %s", apiResponse.StatusCode, apiResponse.StatusMessage)
+		return fmt.Errorf("注册调度中心失败：%d %s", apiResponse.StatusCode, apiResponse.StatusMessage)
 	}
 	receiver.ClientIp = apiResponse.Data.ClientIp
 	receiver.ClientPort = apiResponse.Data.ClientPort

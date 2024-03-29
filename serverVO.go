@@ -1,11 +1,11 @@
 package fSchedule
 
 import (
+	"fmt"
 	"github.com/farseer-go/collections"
 	"github.com/farseer-go/fSchedule/executeStatus"
 	"github.com/farseer-go/fs/container"
 	"github.com/farseer-go/fs/core"
-	"github.com/farseer-go/fs/flog"
 	"github.com/farseer-go/fs/trace"
 	"github.com/farseer-go/utils/http"
 	"math/rand"
@@ -53,7 +53,7 @@ func (receiver *serverVO) registry(bodyJson []byte) (core.ApiResponse[RegistryRe
 	var apiResponse core.ApiResponse[RegistryResponse]
 	_, err := http.NewClient(address+"/api/registry").HeadAdd(tokenName, receiver.Token).Body(bodyJson).Timeout(5000).PostUnmarshal(&apiResponse)
 	if err != nil {
-		_ = flog.Errorf("客户端注册失败：%s", err.Error())
+		_ = fmt.Errorf("注册调度中心失败：%s", err.Error())
 		traceContext.Error(err)
 	}
 

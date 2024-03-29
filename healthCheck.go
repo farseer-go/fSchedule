@@ -17,7 +17,7 @@ func (c *healthCheck) Check() (string, error) {
 	if err == nil {
 		tips = fmt.Sprintf("客户端(%d) %s:%d 注册成功！", defaultClient.ClientId, defaultClient.ClientIp, defaultClient.ClientPort)
 	} else {
-		tips = fmt.Sprintf("客户端(%d) %s:%d ", defaultClient.ClientId, defaultClient.ClientIp, defaultClient.ClientPort)
+		tips = fmt.Sprintf("客户端(%d) %s:%d 注册失败", defaultClient.ClientId, defaultClient.ClientIp, defaultClient.ClientPort)
 	}
 	err = nil
 
