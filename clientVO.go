@@ -150,9 +150,7 @@ func (receiver *clientVO) RegistryClient() error {
 	if err != nil {
 		return err
 	}
-	if apiResponse.StatusCode != 200 {
-		return fmt.Errorf("注册调度中心失败：%d %s", apiResponse.StatusCode, apiResponse.StatusMessage)
-	}
+
 	receiver.ClientIp = apiResponse.Data.ClientIp
 	receiver.ClientPort = apiResponse.Data.ClientPort
 

@@ -53,10 +53,12 @@ func (receiver *serverVO) registry(bodyJson []byte) (core.ApiResponse[RegistryRe
 	var apiResponse core.ApiResponse[RegistryResponse]
 	_, err := http.NewClient(address+"/api/registry").HeadAdd(tokenName, receiver.Token).Body(bodyJson).Timeout(5000).PostUnmarshal(&apiResponse)
 	if err != nil {
-		_ = fmt.Errorf("注册调度中心失败：%s", err.Error())
-		traceContext.Error(err)
+		err = fmt.Errorf("注册调度中心失败：%s", err.Error())
+	} else if apiResponse.StatusCode != 200 {
+		err = fmt.Errorf("注册调度中心失败：%d %s", apiResponse.StatusCode, apiResponse.StatusMessage)
 	}
 
+	traceContext.Error(err)
 	return apiResponse, err
 }
 
