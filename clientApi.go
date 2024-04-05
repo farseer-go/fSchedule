@@ -47,7 +47,13 @@ func Status(TaskId int64) TaskReportDTO {
 			ResourceVO: getResource(),
 		}
 	}
-	return job.jobContext.getReport()
+	dto := job.jobContext.getReport()
+
+	// 任务报告完了，删除当前任务
+	if dto.Status == executeStatus.Fail || dto.Status == executeStatus.Success {
+		jobList.Remove(TaskId)
+	}
+	return dto
 }
 
 // Kill 终止任务
