@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/farseer-go/collections"
 	"github.com/farseer-go/fSchedule/executeStatus"
+	"github.com/farseer-go/fs/asyncLocal"
 	"github.com/farseer-go/fs/container"
 	"github.com/farseer-go/fs/exception"
 	"github.com/farseer-go/fs/flog"
@@ -66,6 +67,7 @@ func invokeJob(task TaskEO) {
 }
 
 func (receiver *Job) Run() {
+	asyncLocal.GC()
 	// 链路追踪
 	entryFSchedule := receiver.traceManager.EntryFSchedule(receiver.jobContext.Name, receiver.jobContext.Id, receiver.jobContext.Data.ToMap())
 	defer func() {
