@@ -10,6 +10,7 @@ import (
 	"github.com/farseer-go/fs/flog"
 	"github.com/farseer-go/fs/parse"
 	"github.com/robfig/cron/v3"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -85,7 +86,14 @@ type options func(opt *Option)
 
 // AddJob 客户端支持的任务
 func AddJob(isEnable bool, name, caption string, ver int, cronString string, job JobFunc, ops ...options) {
-	_, err := StandardParser.Parse(cronString)
+	matched, err := regexp.MatchString("[a-zA-Z0-9\\-_]+", name)
+	if err != nil {
+		panic(fmt.Sprintf("任务组:%s %s，name格式错误:%s", name, caption, err.Error()))
+	}
+	if !matched {
+		panic(fmt.Sprintf("任务组:%s %s，name格式错误，只允许【字母、数字、_、-】", name, caption))
+	}
+	_, err = StandardParser.Parse(cronString)
 	if err != nil {
 		panic(fmt.Sprintf("任务组:%s %s，Cron格式[%s]错误:%s", name, caption, cronString, err.Error()))
 	}
