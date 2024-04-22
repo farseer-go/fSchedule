@@ -24,6 +24,7 @@ func Check(clientId int64) ResourceVO {
 	v := getResource()
 	flog.Debugf("收到调度中心的存活检查： %+v", v)
 	if clientId != defaultClient.ClientId {
+		// 说明当前应用ID变了，IP:Port没变。一般出现在本机调试的时候。进程重启后会出现这个情况。
 		exception.ThrowWebExceptionf(403, "客户端ID不一致，当前clientId：%d，接收到的是：%d", defaultClient.ClientId, clientId)
 	}
 	return v
