@@ -7,12 +7,13 @@ toolchain go1.22.0
 require (
 	github.com/farseer-go/collections v0.14.0
 	github.com/farseer-go/fs v0.14.0
-	github.com/farseer-go/utils v0.13.0
-	github.com/farseer-go/webapi v0.13.0
+	github.com/farseer-go/utils v0.14.0
+	github.com/farseer-go/webapi v0.14.0
 	github.com/robfig/cron/v3 v3.0.1
 )
 
 exclude github.com/timandy/routine v1.1.3
+
 require (
 	github.com/andybalholm/brotli v1.1.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.4 // indirect
