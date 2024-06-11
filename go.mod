@@ -12,6 +12,7 @@ require (
 	github.com/robfig/cron/v3 v3.0.1
 )
 
+exclude github.com/timandy/routine v1.1.3
 require (
 	github.com/andybalholm/brotli v1.1.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.4 // indirect
@@ -26,7 +27,7 @@ require (
 	github.com/power-devops/perfstat v0.0.0-20240221224432-82ca36839d55 // indirect
 	github.com/shirou/gopsutil/v3 v3.24.5 // indirect
 	github.com/shoenig/go-m1cpu v0.1.6 // indirect
-	github.com/timandy/routine v1.1.3 // indirect
+	github.com/timandy/routine v1.1.2 // indirect
 	github.com/tklauser/go-sysconf v0.3.14 // indirect
 	github.com/tklauser/numcpus v0.8.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
