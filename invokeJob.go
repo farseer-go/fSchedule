@@ -82,21 +82,22 @@ func (receiver *Job) Run() {
 		if entryFSchedule != nil {
 			entryFSchedule.End()
 		}
-		// 工作中任务-1
-		defaultClient.WorkCount--
 	}()
 
 	taskStartAtSince := time.Since(receiver.jobContext.StartAt)
 	if taskStartAtSince.Microseconds() > 0 {
 		flog.Warningf("任务组：%s %d 延迟：%s", receiver.jobContext.Name, receiver.jobContext.Id, taskStartAtSince.String())
-	}
-	if receiver.jobContext.StartAt.After(time.Now()) {
+	} else {
 		// 为了保证任务不被延迟，服务端会提前下发任务，需要客户端做休眠等待
 		<-timingWheel.AddTimePrecision(receiver.jobContext.StartAt).C
 	}
 
 	// 工作中任务+1
 	defaultClient.WorkCount++
+	defer func() {
+		// 工作中任务-1
+		defaultClient.WorkCount--
+	}()
 	// 执行任务并拿到结果
 	exception.Try(func() {
 		// 通知调度中心，我开始执行了
