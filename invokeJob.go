@@ -110,6 +110,7 @@ func (receiver *Job) Run() {
 		}
 	}).CatchException(func(exp any) {
 		receiver.jobContext.status = executeStatus.Fail
+		receiver.jobContext.Remark("%s", exp)
 		receiver.jobContext.Error(exp)
 		entryFSchedule.Error(fmt.Errorf("%s", exp))
 	})
