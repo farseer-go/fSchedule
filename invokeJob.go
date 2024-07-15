@@ -67,7 +67,7 @@ func invokeJob(task TaskEO) {
 }
 
 func (receiver *Job) Run() {
-	asyncLocal.GC()
+	asyncLocal.Release()
 	// 链路追踪
 	entryFSchedule := receiver.traceManager.EntryFSchedule(receiver.jobContext.Name, receiver.jobContext.Id, receiver.jobContext.Data.ToMap())
 	defer func() {
