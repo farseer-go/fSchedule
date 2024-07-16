@@ -9,6 +9,7 @@ import (
 	"github.com/farseer-go/fs/trace"
 	"github.com/farseer-go/utils/http"
 	"math/rand"
+	"time"
 )
 
 const tokenName = "FSchedule-ACCESS-TOKEN"
@@ -31,10 +32,10 @@ func (receiver *serverVO) getAddress(ignoreIndex int) (serverAddress, serverInde
 		return receiver.Address[0], 0
 	}
 
-	index := rand.Intn(count - 1)
+	index := rand.New(rand.NewSource(time.Now().UnixNano())).Intn(count - 1)
 	// 如果随机到的索引值与要排除的索引值一样时，则重新随机
 	for ignoreIndex == index {
-		index = rand.Intn(count - 1)
+		index = rand.New(rand.NewSource(time.Now().UnixNano())).Intn(count - 1)
 	}
 	return receiver.Address[index], index
 }
