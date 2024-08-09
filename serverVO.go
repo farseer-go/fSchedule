@@ -6,6 +6,7 @@ import (
 	"github.com/farseer-go/fSchedule/executeStatus"
 	"github.com/farseer-go/fs/container"
 	"github.com/farseer-go/fs/core"
+	"github.com/farseer-go/fs/flog"
 	"github.com/farseer-go/fs/trace"
 	"github.com/farseer-go/utils/http"
 	"math/rand"
@@ -28,6 +29,9 @@ type serverVO struct {
 // 随机一个服务端地址
 func (receiver *serverVO) getAddress(ignoreIndex int) (serverAddress, serverIndex) {
 	count := len(receiver.Address)
+	if count == 0 {
+		flog.Panic("./farseer.yml配置文件没有找到FSchedule.Server.Address的设置")
+	}
 	if count == 1 {
 		return receiver.Address[0], 0
 	}
