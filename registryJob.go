@@ -20,8 +20,10 @@ func RegistryJob() {
 		// 清空消息通知
 		registerNotify = make(chan struct{}, 100)
 
-		// 注册
-		err := defaultClient.RegistryClient()
-		flog.ErrorIfExists(err)
+		// 注册（没有添加Job时，不向服务端注册）
+		if defaultClient.ClientJobs.Count() > 0 {
+			err := defaultClient.RegistryClient()
+			flog.ErrorIfExists(err)
+		}
 	}
 }
