@@ -4,8 +4,8 @@ FSchedule:
   Server:
     Token: ""
     Address:
-      #- "http://127.0.0.1:8886"
-    - "https://fschedule.fsgit.cc"
+      - "ws://127.0.0.1:8886"
+    #- "https://fschedule.fsgit.cc"
 Log:
   LogLevel: "info"
   Component:

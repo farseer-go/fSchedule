@@ -1,11 +1,7 @@
 package fSchedule
 
 import (
-	"fmt"
-	"github.com/farseer-go/fs"
 	"github.com/farseer-go/fs/configure"
-	"github.com/farseer-go/fs/container"
-	"github.com/farseer-go/fs/core"
 	"github.com/farseer-go/fs/flog"
 	"github.com/farseer-go/fs/modules"
 	"github.com/farseer-go/fs/timingWheel"
@@ -26,13 +22,12 @@ func (module Module) PreInitialize() {
 		Token:   configure.GetString("FSchedule.Server.Token"),
 	}
 
+	if len(defaultServer.Address) < 1 {
+		panic("调度中心的地址[FSchedule.Server.Address]未配置")
+	}
+
 	// 客户端配置
-	NewClient()
 	timingWheel.Start()
-
-	// 初始化日志队列
-	logQueue = make(chan logContent, 2048)
-
 }
 
 func (module Module) PostInitialize() {
@@ -41,23 +36,7 @@ func (module Module) PostInitialize() {
 		flog.Warning("FSchedule当前为调试状态，将模拟调用任务")
 		return
 	}
-	builder := webapi.NewApplicationBuilder()
-	builder.RegisterRoutes(route...)
-	builder.UseApiResponse()
-	go builder.Run(fmt.Sprintf("%s:%d", defaultClient.ClientIp, defaultClient.ClientPort))
-
-	fs.AddInitCallback("开启上传调度中心日志", func() {
-		go enableReportLog()
-	})
-
-	fs.AddInitCallback("开启定时注册调度中心，防止掉线", func() {
-		go RegistryJob()
-	})
-
-	// 注册健康检查
-	container.RegisterInstance[core.IHealthCheck](&healthCheck{}, "fSchedule")
 }
 
 func (module Module) Shutdown() {
-	defaultClient.LogoutClient()
 }

@@ -3,7 +3,6 @@ package fSchedule
 import (
 	"context"
 	"fmt"
-	"github.com/farseer-go/collections"
 	"github.com/farseer-go/fSchedule/executeStatus"
 	"github.com/farseer-go/fs/asyncLocal"
 	"github.com/farseer-go/fs/container"
@@ -15,68 +14,43 @@ import (
 	"time"
 )
 
-// 当前正在执行的Job列表
-// key:taskId
-var jobList = collections.NewDictionary[int64, *Job]()
+var workCount int
 var lock = &sync.RWMutex{}
 
-type Job struct {
-	ClientJob  ClientJob
-	jobContext *JobContext
-	// 链路追踪
-	traceManager trace.IManager
-}
+// var taskList = make(map[int64]*JobContext)
+var taskList = sync.Map{}
 
 // 接受来自服务端的任务
-func invokeJob(task TaskEO) {
+func invokeJob(clientVO ClientVO, task taskDTO) {
 	if task.Id == 0 || task.Name == "" {
 		return
 	}
 
-	clientJob := defaultClient.ClientJobs.Where(func(item ClientJob) bool {
-		return item.Name == task.Name
-	}).First()
-
-	if clientJob.IsNil() {
-		return
-	}
-	ctx, cancel := context.WithCancel(context.Background())
-
-	job := &Job{
-		ClientJob: clientJob,
-		jobContext: &JobContext{ // 构造上下文
-			Id:           task.Id,
-			Ver:          clientJob.Ver,
-			Name:         task.Name,
-			Data:         task.Data,
-			Caption:      task.Caption,
-			StartAt:      task.StartAt,
-			nextTimespan: 0,
-			progress:     0,
-			status:       executeStatus.Working,
-			Ctx:          ctx,
-			cancel:       cancel,
-		},
+	ctx, cancel := context.WithCancel(clientVO.client.Ctx)
+	clientVO.Data = task.Data
+	jobContext := &JobContext{ // 构造上下文
+		Id:           task.Id,
+		Name:         task.Name,
+		Ver:          clientVO.Ver,
+		Data:         task.Data,
+		Caption:      task.Caption,
+		StartAt:      task.StartAt,
+		Ctx:          ctx,
+		status:       executeStatus.Working,
+		cancel:       cancel,
+		clientJob:    clientVO,
 		traceManager: container.Resolve[trace.IManager](),
 	}
-	go job.Run()
+	taskList.Store(task.Id, jobContext)
 
-	lock.Lock()
-	defer lock.Unlock()
-	jobList.Add(task.Id, job)
-}
+	// 移除任务
+	defer taskList.Delete(task.Id)
 
-func (receiver *Job) Run() {
 	// 链路追踪
-	entryFSchedule := receiver.traceManager.EntryFSchedule(receiver.jobContext.Name, receiver.jobContext.Id, receiver.jobContext.Data.ToMap())
+	entryFSchedule := jobContext.traceManager.EntryFSchedule(jobContext.Name, jobContext.Id, jobContext.Data.ToMap())
 	defer func() {
 		// 任务报告完后，移除本次任务
-		//todo 没有移除，报告失败怎么办？
-		if receiver.jobContext.report() {
-			lock.Lock()
-			jobList.Remove(receiver.jobContext.Id)
-			lock.Unlock()
-		}
+		clientVO.report(jobContext)
 
 		if entryFSchedule != nil {
 			entryFSchedule.End()
@@ -84,40 +58,35 @@ func (receiver *Job) Run() {
 		asyncLocal.Release()
 	}()
 
-	taskStartAtSince := time.Since(receiver.jobContext.StartAt)
+	taskStartAtSince := time.Since(jobContext.StartAt)
 	if taskStartAtSince.Microseconds() > 0 {
-		flog.Warningf("任务组：%s %d 延迟：%s", receiver.jobContext.Name, receiver.jobContext.Id, taskStartAtSince.String())
+		flog.Warningf("任务组：%s %d 延迟：%s", jobContext.Name, jobContext.Id, taskStartAtSince.String())
 	} else {
 		// 为了保证任务不被延迟，服务端会提前下发任务，需要客户端做休眠等待
-		<-timingWheel.AddTimePrecision(receiver.jobContext.StartAt).C
+		<-timingWheel.AddTimePrecision(jobContext.StartAt).C
 	}
 
 	// 工作中任务+1
-	defaultClient.WorkCount++
+	workCount++
 	defer func() {
 		// 工作中任务-1
-		defaultClient.WorkCount--
+		workCount--
 	}()
+
 	// 执行任务并拿到结果
 	exception.Try(func() {
 		// 通知调度中心，我开始执行了
-		receiver.jobContext.report()
+		clientVO.report(jobContext)
 		// 执行任务
-		if receiver.ClientJob.jobFunc(receiver.jobContext) {
-			receiver.jobContext.status = executeStatus.Success
+		if jobContext.clientJob.jobFunc(jobContext) {
+			jobContext.status = executeStatus.Success
 		} else {
-			receiver.jobContext.status = executeStatus.Fail
+			jobContext.status = executeStatus.Fail
 		}
 	}).CatchException(func(exp any) {
-		receiver.jobContext.status = executeStatus.Fail
-		receiver.jobContext.Remark("%s", exp)
-		receiver.jobContext.Error(exp)
+		jobContext.status = executeStatus.Fail
+		jobContext.Remark("%s", exp)
+		jobContext.Error(exp)
 		entryFSchedule.Error(fmt.Errorf("%s", exp))
 	})
-}
-
-func getJob(taskId int64) *Job {
-	lock.RLock()
-	defer lock.RUnlock()
-	return jobList.GetValue(taskId)
 }
