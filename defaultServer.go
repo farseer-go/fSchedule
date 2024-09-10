@@ -3,7 +3,8 @@ package fSchedule
 import (
 	"fmt"
 	"github.com/farseer-go/fs/flog"
-	"math/rand/v2"
+	"math/rand"
+	"time"
 )
 
 const tokenName = "FSchedule-ACCESS-TOKEN"
@@ -26,7 +27,8 @@ func (receiver *serverVO) getAddress() string {
 	if count == 1 {
 		address = receiver.Address[0]
 	} else {
-		address = receiver.Address[rand.IntN(count-1)]
+		//address = receiver.Address[rand.IntN(count-1)]
+		address = receiver.Address[rand.New(rand.NewSource(time.Now().UnixNano())).Intn(count-1)]
 	}
 
 	return fmt.Sprintf("%s/ws/connect", address)
