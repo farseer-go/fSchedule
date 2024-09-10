@@ -53,8 +53,14 @@ func connectFScheduleServer(job ClientVO) {
 				go invokeJob(job, dto.Task)
 			// 停止任务
 			case 1:
-				if jobContext, exists := taskList.Load(dto.Task.Id); exists {
-					jobContext.(*JobContext).cancel()
+				flog.Infof("[%s]%d收到Kill请求", job.Name, dto.Task.Id)
+				if jContext, exists := taskList.Load(dto.Task.Id); exists {
+					jobContext := jContext.(*JobContext)
+					jobContext.Remark("FOPS主动停止任务")
+					jobContext.status = executeStatus.Fail
+					jobContext.clientJob.report(jobContext)
+					jobContext.cancel()
+					flog.Infof("[%s]%d主动停止任务", job.Name, dto.Task.Id)
 				}
 			}
 		}
