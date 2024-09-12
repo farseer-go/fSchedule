@@ -26,7 +26,7 @@ func connectFScheduleServer(job ClientVO) {
 		}
 		mapClient.Store(job.Name, job)
 		// 连接成功后，需要先注册
-		err = job.client.Send(sendDTO{Type: -1, Registry: registryDTO{ClientId: core.AppId, ClientName: core.AppName, Job: job}})
+		err = job.client.Send(sendDTO{Type: -1, Registry: registryDTO{ClientName: core.AppName, Job: job}})
 		if err != nil {
 			flog.Warningf("[%s]调度中心注册失败：%s", job.Name, err.Error())
 			time.Sleep(3 * time.Second)
@@ -72,7 +72,6 @@ func connectFScheduleServer(job ClientVO) {
 }
 
 type registryDTO struct {
-	ClientId   int64  // 客户端ID
 	ClientName string // 客户端名称
 	Job        ClientVO
 }
