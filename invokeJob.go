@@ -42,19 +42,13 @@ func invokeJob(clientVO ClientVO, task taskDTO) {
 		traceManager: container.Resolve[trace.IManager](),
 	}
 	taskList.Store(task.Id, jobContext)
-
-	// 移除任务
-	defer taskList.Delete(task.Id)
-
 	// 链路追踪
 	entryFSchedule := jobContext.traceManager.EntryFSchedule(jobContext.Name, jobContext.Id, jobContext.Data.ToMap())
 	defer func() {
 		// 任务报告完后，移除本次任务
 		clientVO.report(jobContext)
-
-		if entryFSchedule != nil {
-			entryFSchedule.End()
-		}
+		taskList.Delete(task.Id)
+		entryFSchedule.End(nil)
 		asyncLocal.Release()
 	}()
 

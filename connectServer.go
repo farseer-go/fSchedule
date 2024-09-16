@@ -11,24 +11,25 @@ import (
 	"time"
 )
 
+// 每个任务组对应的ClientVO
 var mapClient = sync.Map{}
 
-func connectFScheduleServer(job ClientVO) {
+func connectFScheduleServer(clientVO ClientVO) {
 	for {
 		address := defaultServer.getAddress()
 		var err error
-		job.client, err = ws.Connect(address, 8192)
-		job.client.AutoExit = false
+		clientVO.client, err = ws.Connect(address, 8192)
+		clientVO.client.AutoExit = false
 		if err != nil {
-			flog.Warningf("[%s]调度中心连接失败：%s", job.Name, err.Error())
+			flog.Warningf("[%s]调度中心连接失败：%s", clientVO.Name, err.Error())
 			time.Sleep(3 * time.Second)
 			continue
 		}
-		mapClient.Store(job.Name, job)
+		mapClient.Store(clientVO.Name, clientVO)
 		// 连接成功后，需要先注册
-		err = job.client.Send(sendDTO{Type: -1, Registry: registryDTO{ClientName: core.AppName, Job: job}})
+		err = clientVO.client.Send(sendDTO{Type: -1, Registry: registryDTO{ClientName: core.AppName, Job: clientVO}})
 		if err != nil {
-			flog.Warningf("[%s]调度中心注册失败：%s", job.Name, err.Error())
+			flog.Warningf("[%s]调度中心注册失败：%s", clientVO.Name, err.Error())
 			time.Sleep(3 * time.Second)
 			continue
 		}
@@ -36,37 +37,37 @@ func connectFScheduleServer(job ClientVO) {
 		for {
 			// 接收调度请求
 			var dto receiverDTO
-			err = job.client.Receiver(&dto)
+			err = clientVO.client.Receiver(&dto)
 			if err != nil {
-				if job.client.IsClose() {
-					mapClient.Delete(job.Name)
-					flog.Warningf("[%s]调度中心服务端：%s 已断开连接，将在3秒后重连", job.Name, address)
+				if clientVO.client.IsClose() {
+					mapClient.Delete(clientVO.Name)
+					flog.Warningf("[%s]调度中心服务端：%s 已断开连接，将在3秒后重连", clientVO.Name, address)
 					break
 				}
-				flog.Warningf("[%s]接收调度中心数据时失败：%s", job.Name, err.Error())
+				flog.Warningf("[%s]接收调度中心数据时失败：%s", clientVO.Name, err.Error())
 				continue
 			}
 
 			switch dto.Type {
 			// 新任务
 			case 0:
-				go invokeJob(job, dto.Task)
+				go invokeJob(clientVO, dto.Task)
 			// 停止任务
 			case 1:
-				flog.Infof("任务组：%s，收到Kill请求，停止任务%d", job.Name, dto.Task.Id)
+				flog.Infof("任务组：%s，收到Kill请求，停止任务%d", clientVO.Name, dto.Task.Id)
 				if jContext, exists := taskList.Load(dto.Task.Id); exists {
 					jobContext := jContext.(*JobContext)
 					jobContext.Remark("FOPS主动停止任务")
 					jobContext.status = executeStatus.Fail
 					jobContext.clientJob.report(jobContext)
 					jobContext.cancel()
-					flog.Infof("任务组：%s，主动停止了任务%d", job.Name, dto.Task.Id)
+					flog.Infof("任务组：%s，主动停止了任务%d", clientVO.Name, dto.Task.Id)
 				}
 			}
 		}
 
 		// 断开后重连
-		<-job.client.Ctx.Done()
+		<-clientVO.client.Ctx.Done()
 		time.Sleep(3 * time.Second)
 	}
 }
