@@ -16,6 +16,15 @@ func (module Module) DependsModule() []modules.FarseerModule {
 }
 
 func (module Module) PreInitialize() {
+	// 配置时间轮
+	timingWheel.Start()
+
+	// 调试状态下，不开启与调度中心的通信
+	if configure.GetBool("FSchedule.Debug.Enable") {
+		flog.Warning("FSchedule当前为调试状态，将模拟调用任务")
+		return
+	}
+
 	// 服务端配置
 	defaultServer = serverVO{
 		Address: configure.GetSlice("FSchedule.Server.Address"),
@@ -26,16 +35,10 @@ func (module Module) PreInitialize() {
 		panic("调度中心的地址[FSchedule.Server.Address]未配置")
 	}
 
-	// 客户端配置
-	timingWheel.Start()
 }
 
 func (module Module) PostInitialize() {
-	// 调试状态下，不开启与调度中心的通信
-	if configure.GetBool("FSchedule.Debug.Enable") {
-		flog.Warning("FSchedule当前为调试状态，将模拟调用任务")
-		return
-	}
+
 }
 
 func (module Module) Shutdown() {
