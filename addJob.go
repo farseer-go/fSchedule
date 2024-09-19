@@ -9,6 +9,7 @@ import (
 	"github.com/farseer-go/fs/parse"
 	"github.com/robfig/cron/v3"
 	"regexp"
+	"strings"
 	"time"
 )
 
@@ -36,7 +37,9 @@ func AddJob(isEnable bool, name, caption string, ver int, cronString string, job
 	if err != nil {
 		panic(fmt.Sprintf("任务组:%s %s，Cron格式[%s]错误:%s", name, caption, cronString, err.Error()))
 	}
-
+	if strings.Split(cronString, " ")[0] == "*" {
+		panic(fmt.Sprintf("任务组:%s %s，cron:%s 第1位，不能是*，请用0代替", name, caption, cronString))
+	}
 	// 说明没有启用调度中心（没有依赖模块）
 	if len(defaultServer.Address) < 1 {
 		return
