@@ -20,14 +20,14 @@ func connectFScheduleServer(clientVO ClientVO) {
 		clientVO.client, err = ws.Connect(address, 8192)
 		clientVO.client.AutoExit = false
 		if err != nil {
-			flog.Warningf("[%s]调度中心连接失败：%s", clientVO.Name, err.Error())
+			flog.Warningf("[%s]调度中心连接失败：%s，将在3秒后重连", clientVO.Name, err.Error())
 			time.Sleep(3 * time.Second)
 			continue
 		}
 		mapClient.Store(clientVO.Name, clientVO)
 		// 连接成功后，需要先注册
 		if err = clientVO.registry(); err != nil {
-			flog.Warningf("[%s]调度中心注册失败：%s", clientVO.Name, err.Error())
+			flog.Warningf("[%s]调度中心注册失败：%s，将在3秒后重连", clientVO.Name, err.Error())
 			time.Sleep(3 * time.Second)
 			continue
 		}
@@ -38,7 +38,6 @@ func connectFScheduleServer(clientVO ClientVO) {
 			err = clientVO.client.Receiver(&dto)
 			if err != nil {
 				if clientVO.client.IsClose() {
-					mapClient.Delete(clientVO.Name)
 					flog.Warningf("[%s]调度中心服务端：%s 已断开连接，将在3秒后重连", clientVO.Name, address)
 					break
 				}
@@ -64,8 +63,13 @@ func connectFScheduleServer(clientVO ClientVO) {
 			}
 		}
 
+		// 断开
+		mapClient.Delete(clientVO.Name)
+		if clientVO.client != nil {
+			clientVO.client.Close()
+		}
+
 		// 断开后重连
-		<-clientVO.client.Ctx.Done()
 		time.Sleep(3 * time.Second)
 	}
 }
