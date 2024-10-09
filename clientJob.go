@@ -3,6 +3,7 @@ package fSchedule
 import (
 	"fmt"
 	"github.com/farseer-go/collections"
+	"github.com/farseer-go/fs/core"
 	"github.com/farseer-go/fs/core/eumLogLevel"
 	"github.com/farseer-go/fs/flog"
 	"github.com/farseer-go/utils/ws"
@@ -20,6 +21,10 @@ type ClientVO struct {
 
 	jobFunc JobFunc    // 任务执行函数
 	client  *ws.Client // ws客户端
+}
+
+func (receiver *ClientVO) registry() error {
+	return receiver.client.Send(sendDTO{Type: -1, Registry: registryDTO{ClientName: core.AppName, Job: *receiver}})
 }
 
 // SetProgress 报告任务结果

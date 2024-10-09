@@ -3,7 +3,6 @@ package fSchedule
 import (
 	"github.com/farseer-go/collections"
 	"github.com/farseer-go/fSchedule/executeStatus"
-	"github.com/farseer-go/fs/core"
 	"github.com/farseer-go/fs/core/eumLogLevel"
 	"github.com/farseer-go/fs/flog"
 	"github.com/farseer-go/utils/ws"
@@ -27,8 +26,7 @@ func connectFScheduleServer(clientVO ClientVO) {
 		}
 		mapClient.Store(clientVO.Name, clientVO)
 		// 连接成功后，需要先注册
-		err = clientVO.client.Send(sendDTO{Type: -1, Registry: registryDTO{ClientName: core.AppName, Job: clientVO}})
-		if err != nil {
+		if err = clientVO.registry(); err != nil {
 			flog.Warningf("[%s]调度中心注册失败：%s", clientVO.Name, err.Error())
 			time.Sleep(3 * time.Second)
 			continue
