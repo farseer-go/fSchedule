@@ -3,6 +3,9 @@ package fSchedule
 import (
 	"context"
 	"fmt"
+	"sync"
+	"time"
+
 	"github.com/farseer-go/fSchedule/executeStatus"
 	"github.com/farseer-go/fs/asyncLocal"
 	"github.com/farseer-go/fs/container"
@@ -10,8 +13,6 @@ import (
 	"github.com/farseer-go/fs/flog"
 	"github.com/farseer-go/fs/timingWheel"
 	"github.com/farseer-go/fs/trace"
-	"sync"
-	"time"
 )
 
 var workCount int
@@ -42,13 +43,11 @@ func invokeJob(clientVO ClientVO, task taskDTO) {
 		traceManager: container.Resolve[trace.IManager](),
 	}
 	taskList.Store(task.Id, jobContext)
-	// 链路追踪
-	entryFSchedule := jobContext.traceManager.EntryFSchedule(jobContext.Name, jobContext.Id, jobContext.Data.ToMap())
+
 	defer func() {
 		// 任务报告完后，移除本次任务
 		clientVO.report(jobContext)
 		taskList.Delete(task.Id)
-		entryFSchedule.End(nil)
 		asyncLocal.Release()
 	}()
 
@@ -66,6 +65,10 @@ func invokeJob(clientVO ClientVO, task taskDTO) {
 		// 工作中任务-1
 		workCount--
 	}()
+
+	// 链路追踪
+	entryFSchedule := jobContext.traceManager.EntryFSchedule(jobContext.Name, jobContext.Id, jobContext.Data.ToMap())
+	defer entryFSchedule.End(nil)
 
 	// 执行任务并拿到结果
 	exception.Try(func() {
