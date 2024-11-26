@@ -1,19 +1,26 @@
 package fSchedule
 
 import (
+	"sync"
+	"time"
+
 	"github.com/farseer-go/collections"
 	"github.com/farseer-go/fSchedule/executeStatus"
 	"github.com/farseer-go/fs/core/eumLogLevel"
 	"github.com/farseer-go/fs/flog"
 	"github.com/farseer-go/utils/ws"
-	"sync"
-	"time"
 )
 
 // 每个任务组对应的ClientVO
 var mapClient = sync.Map{}
 
 func connectFScheduleServer(clientVO ClientVO) {
+	defer func() {
+		mapClient.Delete(clientVO.Name)
+		flog.Errorf("注意，调度线程：%s退出，请检查原因", clientVO.Name)
+		go connectFScheduleServer(clientVO)
+	}()
+
 	for {
 		address := defaultServer.getAddress()
 		var err error
