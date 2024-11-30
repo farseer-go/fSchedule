@@ -68,7 +68,7 @@ func invokeJob(clientVO ClientVO, task taskDTO) {
 
 	// 链路追踪
 	entryFSchedule := jobContext.traceManager.EntryFSchedule(jobContext.Name, jobContext.Id, jobContext.Data.ToMap())
-	defer entryFSchedule.End(nil)
+	defer container.Resolve[trace.IManager]().Push(entryFSchedule, nil)
 
 	// 执行任务并拿到结果
 	exception.Try(func() {
