@@ -42,8 +42,7 @@ func connectFScheduleServer(clientVO ClientVO) {
 		for {
 			// 接收调度请求
 			var dto receiverDTO
-			err = clientVO.client.Receiver(&dto)
-			if err != nil {
+			if err = clientVO.client.Receiver(&dto); err != nil {
 				if clientVO.client.IsClose() {
 					flog.Warningf("[%s]调度中心服务端：%s 已断开连接，将在3秒后重连", clientVO.Name, address)
 					break
