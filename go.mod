@@ -5,15 +5,15 @@ go 1.23.0
 toolchain go1.23.3
 
 require (
-	github.com/farseer-go/collections v0.16.8
-	github.com/farseer-go/fs v0.16.8
-	github.com/farseer-go/utils v0.16.8
-	github.com/farseer-go/webapi v0.16.8
+	github.com/farseer-go/collections v0.16.9
+	github.com/farseer-go/fs v0.16.9
+	github.com/farseer-go/utils v0.16.9
+	github.com/farseer-go/webapi v0.16.9
 	github.com/robfig/cron/v3 v3.0.1
 )
 
 require (
-	github.com/gabriel-vasile/mimetype v1.4.8 // indirect
+	github.com/gabriel-vasile/mimetype v1.4.9 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.26.0 // indirect
