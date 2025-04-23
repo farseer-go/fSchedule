@@ -5,10 +5,10 @@ go 1.23.0
 toolchain go1.23.3
 
 require (
-	github.com/farseer-go/collections v0.16.9
-	github.com/farseer-go/fs v0.16.9
-	github.com/farseer-go/utils v0.16.9
-	github.com/farseer-go/webapi v0.16.9
+	github.com/farseer-go/collections v0.16.10
+	github.com/farseer-go/fs v0.16.10
+	github.com/farseer-go/utils v0.16.10
+	github.com/farseer-go/webapi v0.16.10
 	github.com/robfig/cron/v3 v3.0.1
 )
 
