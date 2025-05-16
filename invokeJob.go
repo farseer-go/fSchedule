@@ -16,7 +16,6 @@ import (
 )
 
 var workCount int
-var lock = &sync.RWMutex{}
 
 // var taskList = make(map[int64]*JobContext)
 var taskList = sync.Map{}
@@ -82,8 +81,8 @@ func invokeJob(clientVO ClientVO, task taskDTO) {
 		}
 	}).CatchException(func(exp any) {
 		jobContext.status = executeStatus.Fail
-		jobContext.Remark("%s", exp)
-		jobContext.Error(exp)
-		entryFSchedule.Error(fmt.Errorf("%s", exp))
+		jobContext.Remark("%+v", exp)
+		jobContext.Errorf("任务组：%s %d 出错了：%+v", jobContext.Name, jobContext.Id, exp)
+		entryFSchedule.Error(fmt.Errorf("任务组：%s %d 出错了：%+v", jobContext.Name, jobContext.Id, exp))
 	})
 }

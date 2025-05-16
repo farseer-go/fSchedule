@@ -2,15 +2,17 @@ package fSchedule
 
 import (
 	"fmt"
+	"regexp"
+	"strings"
+	"time"
+
 	"github.com/farseer-go/collections"
 	"github.com/farseer-go/fSchedule/executeStatus"
 	"github.com/farseer-go/fs"
 	"github.com/farseer-go/fs/configure"
+	"github.com/farseer-go/fs/exception"
 	"github.com/farseer-go/fs/parse"
 	"github.com/robfig/cron/v3"
-	"regexp"
-	"strings"
-	"time"
 )
 
 // JobFunc 客户端要执行的JOB
@@ -25,7 +27,7 @@ type Option struct {
 type options func(opt *Option)
 
 // AddJob 客户端支持的任务
-func AddJob(isEnable bool, name, caption string, ver int, cronString string, job JobFunc, ops ...options) {
+func AddJob(isEnable bool, name, caption string, ver int, cronString string, jobFunc JobFunc, ops ...options) {
 	matched, err := regexp.MatchString("[a-zA-Z0-9\\-_]+", name)
 	if err != nil {
 		panic(fmt.Sprintf("任务组:%s %s，name格式错误:%s", name, caption, err.Error()))
@@ -39,10 +41,6 @@ func AddJob(isEnable bool, name, caption string, ver int, cronString string, job
 	}
 	if strings.Split(cronString, " ")[0] == "*" {
 		panic(fmt.Sprintf("任务组:%s %s，cron:%s 第1位，不能是*，请用0代替", name, caption, cronString))
-	}
-	// 说明没有启用调度中心（没有依赖模块）
-	if len(defaultServer.Address) < 1 {
-		return
 	}
 	// 设置额度参数
 	opt := &Option{Data: collections.NewDictionary[string, string]()}
@@ -65,7 +63,15 @@ func AddJob(isEnable bool, name, caption string, ver int, cronString string, job
 		for k, v := range configure.GetSubNodes("FSchedule.Debug." + name) {
 			jobContext.Data.Add(k, parse.ToString(v))
 		}
-		job(jobContext)
+		// 执行任务并拿到结果(为了打印日志，所以使用try)
+		exception.Try(func() {
+			jobFunc(jobContext)
+		})
+		return
+	}
+
+	// 说明没有启用调度中心（没有依赖模块）
+	if len(defaultServer.Address) < 1 {
 		return
 	}
 
@@ -77,7 +83,7 @@ func AddJob(isEnable bool, name, caption string, ver int, cronString string, job
 			Caption:  caption,
 			Ver:      ver,
 			Cron:     cronString,
-			jobFunc:  job,
+			jobFunc:  jobFunc,
 			StartAt:  opt.StartAt,
 			Data:     opt.Data,
 		})

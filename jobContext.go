@@ -3,12 +3,12 @@ package fSchedule
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/farseer-go/collections"
 	"github.com/farseer-go/fSchedule/executeStatus"
 	"github.com/farseer-go/fs/core/eumLogLevel"
-	"github.com/farseer-go/fs/flog"
 	"github.com/farseer-go/fs/trace"
-	"time"
 )
 
 // JobContext 任务在运行时，更新状态
@@ -42,27 +42,6 @@ func (receiver *JobContext) SetProgress(progress int) {
 // Remark 报告失败原因
 func (receiver *JobContext) Remark(format string, a ...any) {
 	receiver.failRemark = fmt.Sprintf(format, a...)
-}
-
-// log 记录日志
-func (receiver *JobContext) log(logLevel eumLogLevel.Enum, contents ...any) {
-	err := receiver.clientJob.client.Send(sendDTO{
-		Type: 1,
-		Log: logDTO{
-			TaskId:   receiver.Id,
-			Name:     receiver.Name,
-			Ver:      receiver.Ver,
-			Caption:  receiver.Caption,
-			Data:     receiver.Data,
-			LogLevel: logLevel,
-			CreateAt: time.Now().UnixMilli(),
-			Content:  fmt.Sprint(contents...),
-		},
-	})
-
-	if err != nil {
-		flog.Warningf("向调度中心报告任务结果时失败：%s", err.Error())
-	}
 }
 
 // Trace 打印Trace日志
