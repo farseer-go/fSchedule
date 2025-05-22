@@ -2,7 +2,6 @@ package fSchedule
 
 import (
 	"context"
-	"fmt"
 	"sync"
 	"time"
 
@@ -83,6 +82,5 @@ func invokeJob(clientVO ClientVO, task taskDTO) {
 		jobContext.status = executeStatus.Fail
 		jobContext.Remark("%+v", exp)
 		jobContext.Errorf("任务组：%s %d 出错了：%+v", jobContext.Name, jobContext.Id, exp)
-		entryFSchedule.Error(fmt.Errorf("任务组：%s %d 出错了：%+v", jobContext.Name, jobContext.Id, exp))
 	})
 }
