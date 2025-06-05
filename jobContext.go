@@ -7,6 +7,7 @@ import (
 
 	"github.com/farseer-go/collections"
 	"github.com/farseer-go/fSchedule/executeStatus"
+	"github.com/farseer-go/fs/container"
 	"github.com/farseer-go/fs/core/eumLogLevel"
 	"github.com/farseer-go/fs/trace"
 )
@@ -42,6 +43,7 @@ func (receiver *JobContext) SetProgress(progress int) {
 // Remark 报告失败原因
 func (receiver *JobContext) Remark(format string, a ...any) {
 	receiver.failRemark = fmt.Sprintf(format, a...)
+	container.Resolve[trace.IManager]().TraceHand(receiver.failRemark).End(nil)
 }
 
 // Trace 打印Trace日志

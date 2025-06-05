@@ -2,12 +2,15 @@ package fSchedule
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/farseer-go/collections"
+	"github.com/farseer-go/fs/container"
 	"github.com/farseer-go/fs/core"
 	"github.com/farseer-go/fs/core/eumLogLevel"
 	"github.com/farseer-go/fs/flog"
+	"github.com/farseer-go/fs/trace"
 	"github.com/farseer-go/utils/ws"
-	"time"
 )
 
 type ClientVO struct {
@@ -49,6 +52,8 @@ func (receiver *ClientVO) report(jobContext *JobContext) {
 
 // log 记录日志
 func (receiver *ClientVO) log(jobContext *JobContext, logLevel eumLogLevel.Enum, contents ...any) {
+	content := fmt.Sprint(contents...)
+	container.Resolve[trace.IManager]().TraceHand(content).End(nil)
 	err := receiver.client.Send(sendDTO{
 		Type: 1,
 		Log: logDTO{
@@ -59,7 +64,7 @@ func (receiver *ClientVO) log(jobContext *JobContext, logLevel eumLogLevel.Enum,
 			Data:     jobContext.Data,
 			LogLevel: logLevel,
 			CreateAt: time.Now().UnixMilli(),
-			Content:  fmt.Sprint(contents...),
+			Content:  content,
 		},
 	})
 
