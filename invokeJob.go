@@ -25,6 +25,9 @@ func invokeJob(clientVO ClientVO, task taskDTO) {
 		return
 	}
 
+	// InitContext 初始化同一协程上下文，避免在同一协程中多次初始化
+	asyncLocal.InitContext()
+
 	ctx, cancel := context.WithCancel(clientVO.client.Ctx)
 	clientVO.Data = task.Data
 	jobContext := &JobContext{ // 构造上下文
