@@ -28,6 +28,10 @@ type options func(opt *Option)
 
 // AddJob 客户端支持的任务
 func AddJob(isEnable bool, name, caption string, ver int, cronString string, jobFunc JobFunc, ops ...options) {
+	// 已经注册过的任务，不需要再注册
+	if _, exists := mapClient.Load(name); exists {
+		return
+	}
 	matched, err := regexp.MatchString("[a-zA-Z0-9\\-_]+", name)
 	if err != nil {
 		panic(fmt.Sprintf("任务组:%s %s，name格式错误:%s", name, caption, err.Error()))
