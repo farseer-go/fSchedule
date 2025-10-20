@@ -93,3 +93,14 @@ func AddJob(isEnable bool, name, caption string, ver int, cronString string, job
 		})
 	})
 }
+
+// 退出任务
+func ExitJob(name string) {
+	if clientVO, exists := mapClient.Load(name); exists {
+		client := clientVO.(ClientVO)
+		if client.client != nil {
+			client.client.Close()
+		}
+		mapClient.Delete(name)
+	}
+}
