@@ -94,7 +94,7 @@ func AddJob(isEnable bool, name, caption string, ver int, cronString string, job
 	})
 }
 
-// 退出任务
+// 退出任务(断开连接)
 func ExitJob(name string) {
 	if clientVO, exists := mapClient.Load(name); exists {
 		client := clientVO.(ClientVO)
@@ -103,4 +103,16 @@ func ExitJob(name string) {
 		}
 		mapClient.Delete(name)
 	}
+}
+
+// 当前已连接注册的任务
+func ConnectedJobList() collections.List[string] {
+	list := collections.NewList[string]()
+	mapClient.Range(func(k, v any) bool {
+		if name, ok := k.(string); ok {
+			list.Add(name)
+		}
+		return true
+	})
+	return list
 }
