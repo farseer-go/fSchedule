@@ -14,72 +14,6 @@ import (
 // 每个任务组对应的ClientVO
 var mapClient = sync.Map{}
 
-func connectFScheduleServer(clientVO ClientVO) {
-	defer func() {
-		mapClient.Delete(clientVO.Name)
-		flog.Errorf("注意，调度线程：%s退出，请检查原因", clientVO.Name)
-		go connectFScheduleServer(clientVO)
-	}()
-
-	for {
-		address := defaultServer.getAddress()
-		var err error
-		clientVO.client, err = ws.Connect(address, 8192)
-		clientVO.client.AutoExit = false
-		if err != nil {
-			flog.Warningf("[%s]调度中心连接失败：%s，将在3秒后重连", clientVO.Name, err.Error())
-			time.Sleep(3 * time.Second)
-			continue
-		}
-		mapClient.Store(clientVO.Name, clientVO)
-		// 连接成功后，需要先注册
-		if err = clientVO.registry(); err != nil {
-			flog.Warningf("[%s]调度中心注册失败：%s，将在3秒后重连", clientVO.Name, err.Error())
-			time.Sleep(3 * time.Second)
-			continue
-		}
-
-		for {
-			// 接收调度请求
-			var dto receiverDTO
-			if err = clientVO.client.Receiver(&dto); err != nil {
-				if clientVO.client.IsClose() {
-					flog.Warningf("[%s]调度中心服务端：%s 已断开连接，将在3秒后重连", clientVO.Name, address)
-					break
-				}
-				flog.Warningf("[%s]接收调度中心数据时失败：%s", clientVO.Name, err.Error())
-				continue
-			}
-
-			switch dto.Type {
-			// 新任务
-			case 0:
-				go invokeJob(clientVO, dto.Task)
-			// 停止任务
-			case 1:
-				flog.Infof("任务组：%s，收到Kill请求，停止任务%d", clientVO.Name, dto.Task.Id)
-				if jContext, exists := taskList.Load(dto.Task.Id); exists {
-					jobContext := jContext.(*JobContext)
-					jobContext.Remark("FOPS主动停止任务")
-					jobContext.status = executeStatus.Fail
-					jobContext.clientJob.report(jobContext)
-					jobContext.cancel()
-					flog.Infof("任务组：%s，主动停止了任务%d", clientVO.Name, dto.Task.Id)
-				}
-			}
-		}
-
-		// 断开
-		mapClient.Delete(clientVO.Name)
-		if clientVO.client != nil {
-			clientVO.client.Close()
-		}
-
-		// 断开后重连
-		time.Sleep(3 * time.Second)
-	}
-}
-
 type registryDTO struct {
 	ClientName string // 客户端名称
 	Job        ClientVO
@@ -134,4 +68,85 @@ type logDTO struct {
 	LogLevel eumLogLevel.Enum
 	CreateAt int64
 	Content  string
+}
+
+func connectFScheduleServer(clientVO ClientVO) {
+	defer func() {
+		if _, exists := mapClient.Load(clientVO.Name); !exists {
+			flog.Infof("调度线程：%s主动退出，不再注册到调度中心", clientVO.Name)
+			return
+		}
+
+		flog.Errorf("注意，调度线程：%s退出，请检查原因", clientVO.Name)
+		go connectFScheduleServer(clientVO)
+	}()
+
+	// 连接调度中心，失败则3秒后重连
+	for {
+		// 任务被移除时，不需要再重连
+		if _, exists := mapClient.Load(clientVO.Name); !exists {
+			return
+		}
+
+		address := defaultServer.getAddress()
+		var err error
+		clientVO.client, err = ws.Connect(address, 8192)
+		clientVO.client.AutoExit = false
+		if err != nil {
+			flog.Warningf("[%s]调度中心连接失败：%s，将在3秒后重连", clientVO.Name, err.Error())
+			time.Sleep(3 * time.Second)
+			continue
+		}
+		mapClient.Store(clientVO.Name, clientVO)
+		// 连接成功后，需要先注册
+		if err = clientVO.registry(); err != nil {
+			flog.Warningf("[%s]调度中心注册失败：%s，将在3秒后重连", clientVO.Name, err.Error())
+			time.Sleep(3 * time.Second)
+			continue
+		}
+
+		// 持续接收调度中心的命令
+		receiverJobCmd(clientVO, address)
+
+		// 断开
+		if clientVO.client != nil {
+			clientVO.client.Close()
+		}
+
+		// 断开后重连
+		time.Sleep(3 * time.Second)
+	}
+}
+
+// 持续接收调度中心的命令
+func receiverJobCmd(clientVO ClientVO, address string) {
+	for {
+		// 接收调度请求
+		var dto receiverDTO
+		if err := clientVO.client.Receiver(&dto); err != nil {
+			if clientVO.client.IsClose() {
+				flog.Warningf("[%s]调度中心服务端：%s 已断开连接，将在3秒后重连", clientVO.Name, address)
+				return
+			}
+			flog.Warningf("[%s]接收调度中心数据时失败：%s", clientVO.Name, err.Error())
+			continue
+		}
+
+		switch dto.Type {
+		// 新任务
+		case 0:
+			go invokeJob(clientVO, dto.Task)
+		// 停止任务
+		case 1:
+			flog.Infof("任务组：%s，收到Kill请求，停止任务%d", clientVO.Name, dto.Task.Id)
+			if jContext, exists := taskList.Load(dto.Task.Id); exists {
+				jobContext := jContext.(*JobContext)
+				jobContext.Remark("FOPS主动停止任务")
+				jobContext.status = executeStatus.Fail
+				jobContext.clientJob.report(jobContext)
+				jobContext.cancel()
+				flog.Infof("任务组：%s，主动停止了任务%d", clientVO.Name, dto.Task.Id)
+			}
+		}
+	}
 }

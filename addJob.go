@@ -79,18 +79,14 @@ func AddJob(isEnable bool, name, caption string, ver int, cronString string, job
 		return
 	}
 
+	// 存储任务
+	clientVO := ClientVO{Name: name, IsEnable: isEnable, Caption: caption, Ver: ver, Cron: cronString, jobFunc: jobFunc, StartAt: opt.StartAt, Data: opt.Data}
+	mapClient.Store(clientVO.Name, clientVO)
+
+	// 系统初始化后，向调度中心注册任务组
 	fs.AddInitCallback("向调度中心注册任务组："+name, func() {
 		// 向调度中心注册
-		go connectFScheduleServer(ClientVO{
-			Name:     name,
-			IsEnable: isEnable,
-			Caption:  caption,
-			Ver:      ver,
-			Cron:     cronString,
-			jobFunc:  jobFunc,
-			StartAt:  opt.StartAt,
-			Data:     opt.Data,
-		})
+		go connectFScheduleServer(clientVO)
 	})
 }
 
