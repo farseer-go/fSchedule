@@ -53,7 +53,7 @@ func invokeJob(clientVO ClientVO, task taskDTO) {
 	}()
 
 	taskStartAtSince := time.Since(jobContext.StartAt)
-	if taskStartAtSince.Microseconds() > 0 {
+	if taskStartAtSince.Microseconds() >= 1 {
 		flog.Warningf("任务组：%s %d 延迟：%s", jobContext.Name, jobContext.Id, taskStartAtSince.String())
 	} else {
 		// 为了保证任务不被延迟，服务端会提前下发任务，需要客户端做休眠等待
