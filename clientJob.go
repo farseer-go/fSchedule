@@ -27,7 +27,7 @@ type ClientVO struct {
 }
 
 func (receiver *ClientVO) registry() error {
-	return receiver.client.Send(sendDTO{Type: -1, Registry: registryDTO{ClientName: core.AppName, Job: *receiver}})
+	return receiver.client.Send(sendDTO{Type: -1, Registry: registryDTO{ClientName: core.AppName, ClientIp: core.AppIp, Job: *receiver}})
 }
 
 // SetProgress 报告任务结果

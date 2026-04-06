@@ -16,6 +16,7 @@ var mapClient = sync.Map{}
 
 type registryDTO struct {
 	ClientName string // 客户端名称
+	ClientIp   string // 客户端IP
 	Job        ClientVO
 }
 
