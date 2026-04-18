@@ -1,13 +1,13 @@
 package test
 
 import (
+	"strconv"
+	"testing"
+
 	"github.com/farseer-go/fSchedule"
 	"github.com/farseer-go/fs"
 	"github.com/farseer-go/fs/flog"
 	"github.com/farseer-go/fs/modules"
-	"strconv"
-	"testing"
-	"time"
 )
 
 type startupModule struct {
@@ -33,5 +33,5 @@ func TestRun(t *testing.T) {
 	fs.Initialize[startupModule]("test fSchedule")
 	defer fSchedule.Module{}.Shutdown()
 
-	time.Sleep(300000 * time.Second)
+	fs.Run()
 }
