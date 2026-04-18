@@ -92,12 +92,12 @@ func connectFScheduleServer(clientVO ClientVO) {
 		address := defaultServer.getAddress()
 		var err error
 		clientVO.client, err = ws.Connect(address, 8192)
-		clientVO.client.AutoExit = false
 		if err != nil {
 			flog.Warningf("[%s]调度中心连接失败：%s，将在3秒后重连", clientVO.Name, err.Error())
 			time.Sleep(3 * time.Second)
 			continue
 		}
+		clientVO.client.AutoExit = false
 		mapClient.Store(clientVO.Name, clientVO)
 		// 连接成功后，需要先注册
 		if err = clientVO.registry(); err != nil {

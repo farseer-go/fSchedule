@@ -3,6 +3,7 @@ package fSchedule
 import (
 	"context"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/farseer-go/fSchedule/executeStatus"
@@ -14,7 +15,7 @@ import (
 	"github.com/farseer-go/fs/trace"
 )
 
-var workCount int
+var workCount int64
 
 // var taskList = make(map[int64]*JobContext)
 var taskList = sync.Map{}
@@ -61,10 +62,10 @@ func invokeJob(clientVO ClientVO, task taskDTO) {
 	}
 
 	// 工作中任务+1
-	workCount++
+	atomic.AddInt64(&workCount, 1)
 	defer func() {
 		// 工作中任务-1
-		workCount--
+		atomic.AddInt64(&workCount, -1)
 	}()
 
 	// 链路追踪

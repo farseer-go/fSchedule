@@ -2,6 +2,7 @@ package fSchedule
 
 import (
 	"fmt"
+	"sync/atomic"
 	"time"
 
 	"github.com/farseer-go/collections"
@@ -32,7 +33,7 @@ func (receiver *ClientVO) registry() error {
 
 // SetProgress 报告任务结果
 func (receiver *ClientVO) report(jobContext *JobContext) {
-	err := receiver.client.Send(sendDTO{
+	dto := sendDTO{
 		Type: 0,
 		TaskReport: taskReportDTO{
 			Id:           jobContext.Id,
@@ -44,8 +45,19 @@ func (receiver *ClientVO) report(jobContext *JobContext) {
 			FailRemark:   jobContext.failRemark,
 			resourceVO:   getResource(),
 		},
-	})
+	}
+	err := receiver.client.Send(dto)
 	if err != nil {
+		// 当前持有的连接可能是旧连接（调度中心重启后重连，但 invokeJob goroutine 仍持有旧 ClientVO 副本）
+		// 从 mapClient 取最新的 ClientVO，用新连接重试一次
+		if latest, ok := mapClient.Load(receiver.Name); ok {
+			latestVO := latest.(ClientVO)
+			if latestVO.client != receiver.client {
+				if retryErr := latestVO.client.Send(dto); retryErr == nil {
+					return
+				}
+			}
+		}
 		flog.Warningf("向调度中心报告任务结果时失败：%s", err.Error())
 	}
 }
@@ -54,7 +66,7 @@ func (receiver *ClientVO) report(jobContext *JobContext) {
 func (receiver *ClientVO) log(jobContext *JobContext, logLevel eumLogLevel.Enum, contents ...any) {
 	content := fmt.Sprint(contents...)
 	container.Resolve[trace.IManager]().TraceHand(content).End(nil)
-	err := receiver.client.Send(sendDTO{
+	dto := sendDTO{
 		Type: 1,
 		Log: logDTO{
 			TaskId:   jobContext.Id,
@@ -66,10 +78,19 @@ func (receiver *ClientVO) log(jobContext *JobContext, logLevel eumLogLevel.Enum,
 			CreateAt: time.Now().UnixMilli(),
 			Content:  content,
 		},
-	})
-
+	}
+	err := receiver.client.Send(dto)
 	if err != nil {
-		flog.Warningf("向调度中心报告任务结果时失败：%s", err.Error())
+		// 与 report 相同：重连后旧 goroutine 持有旧连接，尝试从 mapClient 取新连接重发
+		if latest, ok := mapClient.Load(receiver.Name); ok {
+			latestVO := latest.(ClientVO)
+			if latestVO.client != receiver.client {
+				if retryErr := latestVO.client.Send(dto); retryErr == nil {
+					return
+				}
+			}
+		}
+		flog.Warningf("向调度中心上报日志时失败：%s", err.Error())
 	}
 }
 
@@ -81,8 +102,9 @@ func getResource() resourceVO {
 		taskListLength++
 		return true
 	})
+	wc := int(atomic.LoadInt64(&workCount))
 	return resourceVO{
-		QueueCount: taskListLength - workCount,
-		WorkCount:  workCount,
+		QueueCount: taskListLength - wc,
+		WorkCount:  wc,
 	}
 }
