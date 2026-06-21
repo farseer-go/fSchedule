@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/farseer-go/collections"
-	"github.com/farseer-go/fs/container"
 	"github.com/farseer-go/fs/core"
 	"github.com/farseer-go/fs/core/eumLogLevel"
 	"github.com/farseer-go/fs/flog"
@@ -65,7 +64,7 @@ func (receiver *ClientVO) report(jobContext *JobContext) {
 // log 记录日志
 func (receiver *ClientVO) log(jobContext *JobContext, logLevel eumLogLevel.Enum, contents ...any) {
 	content := fmt.Sprint(contents...)
-	container.Resolve[trace.IManager]().TraceHand(content).End(nil)
+	trace.Manager().TraceHand(content).End(nil)
 	dto := sendDTO{
 		Type: 1,
 		Log: logDTO{

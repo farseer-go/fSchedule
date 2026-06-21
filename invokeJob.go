@@ -8,7 +8,6 @@ import (
 
 	"github.com/farseer-go/fSchedule/executeStatus"
 	"github.com/farseer-go/fs/asyncLocal"
-	"github.com/farseer-go/fs/container"
 	"github.com/farseer-go/fs/exception"
 	"github.com/farseer-go/fs/flog"
 	"github.com/farseer-go/fs/timingWheel"
@@ -42,7 +41,7 @@ func invokeJob(clientVO ClientVO, task taskDTO) {
 		status:       executeStatus.Working,
 		cancel:       cancel,
 		clientJob:    clientVO,
-		traceManager: container.Resolve[trace.IManager](),
+		traceManager: trace.Manager(),
 	}
 	taskList.Store(task.Id, jobContext)
 
@@ -70,7 +69,7 @@ func invokeJob(clientVO ClientVO, task taskDTO) {
 
 	// 链路追踪
 	entryFSchedule := jobContext.traceManager.EntryFSchedule(jobContext.Name, jobContext.Id, jobContext.Data.ToMap())
-	defer container.Resolve[trace.IManager]().Push(entryFSchedule, nil)
+	defer trace.Manager().Push(entryFSchedule, nil)
 
 	// 执行任务并拿到结果
 	exception.Try(func() {
